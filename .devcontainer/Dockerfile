@@ -10,6 +10,7 @@ ARG WEBSOCKIFY_VERSION=0.11.0
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
+    && npm install -g @anthropic-ai/claude-code \
     && node --version && npm --version
 
 # ============================================================
