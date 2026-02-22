@@ -13,7 +13,7 @@ jobs:
     if: github.run_number == 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 프로젝트 이름 추출
         id: meta

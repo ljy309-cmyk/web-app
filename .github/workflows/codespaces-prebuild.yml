@@ -16,7 +16,7 @@ jobs:
     permissions:
       codespaces: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
