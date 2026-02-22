@@ -20,22 +20,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: minor/patch 업데이트 자동 승인 및 머지
+      - name: minor/patch 업데이트 자동 머지 설정
         if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          gh pr review "$PR_URL" --approve --body "✅ minor/patch 업데이트 자동 승인"
-
-          # 모든 CI 체크 완료 대기 (Lint, Test, Audit, Lighthouse 포함)
-          echo "모든 CI 체크 완료 대기 중..."
-          if gh pr checks "$PR_URL" --watch --fail-fast; then
-            echo "✅ 모든 CI 체크 통과 — 머지 진행"
-            gh pr merge "$PR_URL" --squash
-          else
-            echo "❌ CI 체크 실패 — 자동 머지를 건너뜁니다."
-          fi
+          echo "✅ minor/patch 업데이트 — 자동 머지 활성화"
+          gh pr merge "$PR_URL" --auto --squash
 
       - name: 메이저 업데이트 라벨 추가
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
