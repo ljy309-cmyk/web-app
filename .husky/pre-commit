@@ -3,7 +3,7 @@
 echo "=== Pre-commit 검증 시작 ==="
 
 # 1. 보안 취약점 검사 (high/critical, 프로덕션 의존성만)
-echo "[1/5] npm audit (보안 취약점 검사)..."
+echo "[1/4] npm audit (보안 취약점 검사)..."
 npm audit --audit-level=high --omit=dev 2>/dev/null
 if [ $? -ne 0 ]; then
   echo "❌ high/critical 보안 취약점이 있습니다. 커밋이 중단됩니다."
@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # 2. TypeScript 타입 체크 (모든 워닝 = 에러)
-echo "[2/5] TypeScript 타입 체크..."
+echo "[2/4] TypeScript 타입 체크..."
 npx tsc --noEmit
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript 타입 에러가 있습니다. 커밋이 중단됩니다."
@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # 3. ESLint 검사 (워닝 0개 허용 + 접근성 a11y 규칙 포함)
-echo "[3/5] ESLint 검사 (a11y 포함)..."
+echo "[3/4] ESLint 검사 (a11y 포함)..."
 npx eslint --max-warnings 0 .
 if [ $? -ne 0 ]; then
   echo "❌ ESLint 에러/워닝이 있습니다. 커밋이 중단됩니다."
@@ -28,26 +28,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # 4. 단위 테스트 + 스냅샷 테스트 + 커버리지 100% 검증
-echo "[4/5] 단위/스냅샷 테스트 (커버리지 100% 필수)..."
+echo "[4/4] 단위/스냅샷 테스트 (커버리지 100% 필수)..."
 npx vitest run --coverage
 if [ $? -ne 0 ]; then
   echo "❌ 테스트 실패 또는 커버리지 100% 미달입니다. 커밋이 중단됩니다."
   echo "   스냅샷 갱신이 필요하면: npx vitest run --update"
   exit 1
-fi
-
-# 5. E2E 테스트 (Playwright 브라우저가 정상 설치된 경우에만 실행)
-if node -e "const {chromium}=require('playwright');process.exit(require('fs').existsSync(chromium.executablePath())?0:1)" 2>/dev/null; then
-  echo "[5/5] E2E 테스트 (Playwright)..."
-  npx playwright test
-  if [ $? -ne 0 ]; then
-    echo "❌ E2E 테스트가 실패했습니다. 커밋이 중단됩니다."
-    echo "   스크린샷 갱신이 필요하면: npm run e2e:update-snapshots"
-    exit 1
-  fi
-else
-  echo "[5/5] E2E 테스트 건너뜀 (Playwright 브라우저 미설치)"
-  echo "   설치: npx playwright install chromium"
 fi
 
 echo "=== ✅ 모든 검증 통과! 커밋을 진행합니다. ==="

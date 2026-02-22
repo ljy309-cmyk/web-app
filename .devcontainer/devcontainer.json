@@ -28,9 +28,7 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss",
         "ms-python.python",
-        "ms-playwright.playwright",
         "vitest.explorer",
         "streetsidesoftware.code-spell-checker"
       ],
