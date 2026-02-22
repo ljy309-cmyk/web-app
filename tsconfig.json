@@ -11,11 +11,21 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+
+    /* 엄격 모드: 모든 워닝을 에러로 처리 */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
+
+    /* vitest globals */
+    "types": ["vitest/globals"],
+
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

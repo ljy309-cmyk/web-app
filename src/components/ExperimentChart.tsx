@@ -19,8 +19,8 @@ interface ExperimentChartProps {
 
 function ExperimentChart({ temperature, magneticField }: ExperimentChartProps) {
   const data = useMemo(
-    () => generateResistanceData(temperature, magneticField),
-    [temperature, magneticField]
+    () => generateResistanceData(magneticField),
+    [magneticField]
   );
 
   return (

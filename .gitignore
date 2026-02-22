@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # PWA dev
 dev-dist/
+
+# Coverage
+coverage/

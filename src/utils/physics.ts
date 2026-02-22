@@ -23,7 +23,6 @@ function getCriticalTemperature(magneticField: number): number {
 }
 
 export function generateResistanceData(
-  currentTemp: number,
   magneticField: number
 ): DataPoint[] {
   const tc = getCriticalTemperature(magneticField);
@@ -54,9 +53,6 @@ export function generateResistanceData(
       superconducting: Math.round(superconducting * 1000) / 1000,
     });
   }
-
-  // 현재 온도 표시를 위한 마커 포인트
-  void currentTemp;
 
   return data;
 }
