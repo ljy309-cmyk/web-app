@@ -15,7 +15,7 @@
     "analyze": "npm run build && open dist/bundle-stats.html",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check-all": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage",
+    "check-all": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage && npm run build",
     "prepare": "husky"
   },
   "dependencies": {

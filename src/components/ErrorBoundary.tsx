@@ -31,14 +31,8 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div role="alert" style={containerStyle}>
           <h1 style={titleStyle}>문제가 발생했습니다</h1>
-          <p style={messageStyle}>
-            예상치 못한 오류가 발생했습니다. 페이지를 새로고침해 주세요.
-          </p>
-          <button
-            type="button"
-            style={buttonStyle}
-            onClick={() => window.location.reload()}
-          >
+          <p style={messageStyle}>예상치 못한 오류가 발생했습니다. 페이지를 새로고침해 주세요.</p>
+          <button type="button" style={buttonStyle} onClick={() => window.location.reload()}>
             새로고침
           </button>
         </div>

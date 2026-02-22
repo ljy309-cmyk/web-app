@@ -12,7 +12,7 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary>
         <p>정상 콘텐츠</p>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(screen.getByText("정상 콘텐츠")).toBeInTheDocument();
   });
@@ -23,7 +23,7 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary>
         <ProblemChild />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary>
         <ProblemChild />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByRole("button", { name: "새로고침" })).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary>
         <ProblemChild />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     const user = userEvent.setup();
@@ -74,7 +74,7 @@ describe("ErrorBoundary", () => {
     const { container } = render(
       <ErrorBoundary>
         <ProblemChild />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(container).toMatchSnapshot();
