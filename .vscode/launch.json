@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Dev Server",
-      "runtimeExecutable": "/opt/node22/bin/npm",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "console": "integratedTerminal",
       "serverReadyAction": {

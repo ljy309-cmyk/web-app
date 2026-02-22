@@ -1,26 +1,16 @@
 FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye
 
-ARG NODE_VERSION=20
 ARG NOVNC_VERSION=1.4.0
 ARG WEBSOCKIFY_VERSION=0.11.0
 
 # ============================================================
-# 1. Node.js 설치
-# ============================================================
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest \
-    && npm install -g @anthropic-ai/claude-code \
-    && node --version && npm --version
-
-# ============================================================
-# 2. 한국 시간대(KST) 설정
+# 1. 한국 시간대(KST) 설정
 # ============================================================
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # ============================================================
-# 3. xvfb + VNC + noVNC (GUI 확인용)
+# 2. xvfb + VNC + noVNC (GUI 확인용)
 # ============================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
@@ -43,13 +33,13 @@ RUN mkdir -p /opt/noVNC/utils/websockify \
     && ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html
 
 # ============================================================
-# 4. Python 패키지 (Flask 등 백엔드용)
+# 3. Python 패키지 (Flask 등 백엔드용)
 # ============================================================
 COPY requirements.txt /tmp/requirements.txt
 RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
 
 # ============================================================
-# 5. xvfb + noVNC 시작 스크립트
+# 4. xvfb + noVNC 시작 스크립트
 # ============================================================
 COPY .devcontainer/start-vnc.sh /usr/local/bin/start-vnc.sh
 RUN chmod +x /usr/local/bin/start-vnc.sh
