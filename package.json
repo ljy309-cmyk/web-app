@@ -23,7 +23,7 @@
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^2.15.0"
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.2",
