@@ -1,0 +1,3 @@
+# Python 백엔드 의존성 (필요 시 추가)
+flask>=3.0
+requests>=2.31

@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    ports:
+      - "5173:5173" # Vite dev server
+      - "4173:4173" # Vite preview
+      - "6080:6080" # noVNC
+      - "5900:5900" # VNC direct
+    volumes:
+      - .:/workspace:cached
+      - node_modules:/workspace/node_modules
+    working_dir: /workspace
+    environment:
+      - DISPLAY=:99
+      - CHOKIDAR_USEPOLLING=true # 파일 변경 감지 (Docker 볼륨)
+    command: >
+      bash -c "
+        /usr/local/bin/start-vnc.sh &
+        npm install &&
+        npm run dev -- --host 0.0.0.0
+      "
+    user: vscode
+
+volumes:
+  node_modules:

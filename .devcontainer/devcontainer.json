@@ -1,0 +1,48 @@
+{
+  "name": "Web App Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "forwardPorts": [5173, 4173, 6080, 5900],
+  "portsAttributes": {
+    "5173": { "label": "Vite Dev Server", "onAutoForward": "notify" },
+    "4173": { "label": "Vite Preview", "onAutoForward": "notify" },
+    "6080": { "label": "noVNC (브라우저 GUI)", "onAutoForward": "openBrowser" },
+    "5900": { "label": "VNC Direct", "onAutoForward": "ignore" }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "nohup /usr/local/bin/start-vnc.sh > /tmp/vnc.log 2>&1 &",
+
+  "remoteUser": "vscode",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-python.python",
+        "ms-playwright.playwright",
+        "vitest.explorer",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}
