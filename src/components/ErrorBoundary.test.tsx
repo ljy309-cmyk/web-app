@@ -68,6 +68,27 @@ describe("ErrorBoundary", () => {
     vi.restoreAllMocks();
   });
 
+  it("프로덕션 환경에서는 console.error를 호출하지 않는다", () => {
+    const originalDev = import.meta.env.DEV;
+    import.meta.env.DEV = false;
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <ErrorBoundary>
+        <ProblemChild />
+      </ErrorBoundary>
+    );
+
+    expect(consoleSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining("ErrorBoundary caught:"),
+      expect.anything(),
+      expect.anything()
+    );
+
+    import.meta.env.DEV = originalDev;
+    vi.restoreAllMocks();
+  });
+
   it("에러 상태 스냅샷과 일치한다", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
 
