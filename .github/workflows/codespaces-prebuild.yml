@@ -1,0 +1,28 @@
+name: Codespaces Prebuild
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - "package-lock.json"
+      - "requirements.txt"
+  workflow_dispatch:
+
+jobs:
+  prebuild:
+    name: Prebuild Codespace
+    runs-on: ubuntu-latest
+    permissions:
+      codespaces: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: codespace-${{ hashFiles('.devcontainer/**', 'package-lock.json') }}
+          restore-keys: codespace-
+      - name: Codespace Prebuild 트리거
+        uses: github/codespaces-precache@v2
+        if: github.repository_owner == github.actor
+        continue-on-error: true
