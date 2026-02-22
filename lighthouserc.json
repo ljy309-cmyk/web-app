@@ -3,7 +3,7 @@
     "collect": {
       "startServerCommand": "npm run preview",
       "startServerReadyPattern": "Local",
-      "url": ["http://localhost:4173"],
+      "url": ["http://localhost:4173/web-app/"],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop"

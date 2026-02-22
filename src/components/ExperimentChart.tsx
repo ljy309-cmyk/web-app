@@ -51,7 +51,7 @@ function ExperimentChart({ temperature, magneticField }: ExperimentChartProps) {
               type="monotone"
               dataKey="resistance"
               name="저항"
-              stroke="#e94560"
+              stroke="#f55575"
               strokeWidth={2}
               dot={false}
               animationDuration={300}
