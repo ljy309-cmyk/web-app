@@ -14,10 +14,7 @@ function App() {
       <main className={styles.main}>
         <div className={styles.content}>
           <section className={styles.chartSection}>
-            <ExperimentChart
-              temperature={temperature}
-              magneticField={magneticField}
-            />
+            <ExperimentChart temperature={temperature} magneticField={magneticField} />
           </section>
           <aside className={styles.controlSection}>
             <ControlPanel

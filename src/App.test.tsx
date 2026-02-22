@@ -10,9 +10,7 @@ vi.mock("recharts", () => {
   const MockLineChart = ({ children }: { children: React.ReactNode }) => (
     <div data-testid="line-chart">{children}</div>
   );
-  const MockLine = ({ dataKey }: { dataKey: string }) => (
-    <div data-testid={`line-${dataKey}`} />
-  );
+  const MockLine = ({ dataKey }: { dataKey: string }) => <div data-testid={`line-${dataKey}`} />;
   const MockXAxis = () => <div data-testid="x-axis" />;
   const MockYAxis = () => <div data-testid="y-axis" />;
   const MockCartesianGrid = () => <div data-testid="cartesian-grid" />;
@@ -75,9 +73,7 @@ describe("App", () => {
     render(<App />);
     const tempSlider = screen.getByLabelText("온도 (K)");
     fireEvent.change(tempSlider, { target: { value: "50" } });
-    expect(
-      screen.getByText("초전도 상태: 저항이 0에 근접합니다.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("초전도 상태: 저항이 0에 근접합니다.")).toBeInTheDocument();
   });
 
   it("초기 상태 스냅샷과 일치한다", () => {

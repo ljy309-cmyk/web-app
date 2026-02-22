@@ -40,24 +40,16 @@ test.describe("슬라이더 인터랙션", () => {
     await expect(page.getByText("10.0 T")).toBeVisible();
   });
 
-  test("온도를 92K 미만으로 설정하면 초전도 상태 메시지가 표시된다", async ({
-    page,
-  }) => {
+  test("온도를 92K 미만으로 설정하면 초전도 상태 메시지가 표시된다", async ({ page }) => {
     const slider = page.getByLabel("온도 (K)");
     await slider.fill("50");
-    await expect(
-      page.getByText("초전도 상태: 저항이 0에 근접합니다.")
-    ).toBeVisible();
+    await expect(page.getByText("초전도 상태: 저항이 0에 근접합니다.")).toBeVisible();
   });
 
-  test("온도를 92K 이상으로 설정하면 일반 상태 메시지가 표시된다", async ({
-    page,
-  }) => {
+  test("온도를 92K 이상으로 설정하면 일반 상태 메시지가 표시된다", async ({ page }) => {
     const slider = page.getByLabel("온도 (K)");
     await slider.fill("200");
-    await expect(
-      page.getByText("일반 상태: 온도가 임계점 이상입니다.")
-    ).toBeVisible();
+    await expect(page.getByText("일반 상태: 온도가 임계점 이상입니다.")).toBeVisible();
   });
 });
 

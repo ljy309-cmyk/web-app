@@ -22,9 +22,7 @@ function getCriticalTemperature(magneticField: number): number {
   return TC_BASE * (1 - ratio * ratio);
 }
 
-export function generateResistanceData(
-  magneticField: number
-): DataPoint[] {
+export function generateResistanceData(magneticField: number): DataPoint[] {
   const tc = getCriticalTemperature(magneticField);
   const data: DataPoint[] = [];
 

@@ -32,9 +32,7 @@ describe("generateResistanceData", () => {
   it("전이 구간에서 저항이 점진적으로 증가하고 초전도 값이 감소한다", () => {
     const data = generateResistanceData(0);
     // Tc=92, 전이구간: 92 <= t < 102
-    const transitionPoints = data.filter(
-      (d) => d.temp >= 92 && d.temp < 102
-    );
+    const transitionPoints = data.filter((d) => d.temp >= 92 && d.temp < 102);
     expect(transitionPoints.length).toBeGreaterThan(0);
 
     for (const point of transitionPoints) {

@@ -27,9 +27,7 @@ describe("ControlPanel", () => {
 
   it("온도 슬라이더를 변경하면 콜백이 호출된다", () => {
     const onTemperatureChange = vi.fn();
-    render(
-      <ControlPanel {...defaultProps} onTemperatureChange={onTemperatureChange} />
-    );
+    render(<ControlPanel {...defaultProps} onTemperatureChange={onTemperatureChange} />);
     const slider = screen.getByLabelText("온도 (K)");
     fireEvent.change(slider, { target: { value: "150" } });
     expect(onTemperatureChange).toHaveBeenCalledWith(150);
@@ -37,9 +35,7 @@ describe("ControlPanel", () => {
 
   it("자기장 슬라이더를 변경하면 콜백이 호출된다", () => {
     const onMagneticFieldChange = vi.fn();
-    render(
-      <ControlPanel {...defaultProps} onMagneticFieldChange={onMagneticFieldChange} />
-    );
+    render(<ControlPanel {...defaultProps} onMagneticFieldChange={onMagneticFieldChange} />);
     const slider = screen.getByLabelText("자기장 (T)");
     fireEvent.change(slider, { target: { value: "10" } });
     expect(onMagneticFieldChange).toHaveBeenCalledWith(10);
@@ -47,16 +43,12 @@ describe("ControlPanel", () => {
 
   it("온도가 92K 미만이면 초전도 상태 메시지를 표시한다", () => {
     render(<ControlPanel {...defaultProps} temperature={50} />);
-    expect(
-      screen.getByText("초전도 상태: 저항이 0에 근접합니다.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("초전도 상태: 저항이 0에 근접합니다.")).toBeInTheDocument();
   });
 
   it("온도가 92K 이상이면 일반 상태 메시지를 표시한다", () => {
     render(<ControlPanel {...defaultProps} temperature={300} />);
-    expect(
-      screen.getByText("일반 상태: 온도가 임계점 이상입니다.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("일반 상태: 온도가 임계점 이상입니다.")).toBeInTheDocument();
   });
 
   it("온도 슬라이더의 범위가 0~400이다", () => {

@@ -18,17 +18,13 @@ interface ExperimentChartProps {
 }
 
 function ExperimentChart({ temperature, magneticField }: ExperimentChartProps) {
-  const data = useMemo(
-    () => generateResistanceData(magneticField),
-    [magneticField]
-  );
+  const data = useMemo(() => generateResistanceData(magneticField), [magneticField]);
 
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.title}>온도-저항 그래프</h2>
       <p className={styles.description}>
-        현재 온도: <strong>{temperature}K</strong> / 자기장:{" "}
-        <strong>{magneticField}T</strong>
+        현재 온도: <strong>{temperature}K</strong> / 자기장: <strong>{magneticField}T</strong>
       </p>
       <div className={styles.chart}>
         <ResponsiveContainer width="100%" height={350}>
