@@ -45,7 +45,7 @@ RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/req
 # ============================================================
 # 4. xvfb + noVNC 시작 스크립트
 # ============================================================
-COPY start-vnc.sh /usr/local/bin/start-vnc.sh
+COPY .devcontainer/start-vnc.sh /usr/local/bin/start-vnc.sh
 RUN chmod +x /usr/local/bin/start-vnc.sh
 
 # 환경 변수
