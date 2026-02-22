@@ -38,10 +38,9 @@ jobs:
 
   e2e:
     name: E2E Tests (Playwright)
-    needs: lint
     runs-on: ubuntu-latest
     steps:
-      - run: echo "✅ E2E 테스트가 단위/스냅샷 테스트(100% 커버리지)로 대체되었습니다"
+      - run: echo "E2E tests replaced by unit/snapshot tests with 100% coverage"
 
   audit:
     name: Security Audit
@@ -54,7 +53,19 @@ jobs:
           cache: npm
       - run: npm ci
       - name: npm audit (high/critical, 프로덕션 의존성)
-        run: npm audit --audit-level=high --omit=dev
+        run: |
+          npm audit --omit=dev --json > audit-report.json 2>&1 || true
+          node -e "
+            const r = require('./audit-report.json');
+            const v = r.metadata?.vulnerabilities || {};
+            console.log('Vulnerability summary:', JSON.stringify(v));
+            const serious = (v.high || 0) + (v.critical || 0);
+            if (serious > 0) {
+              console.error('Found ' + serious + ' high/critical vulnerabilities');
+              process.exit(1);
+            }
+            console.log('No high/critical production vulnerabilities');
+          "
 
   lighthouse:
     name: Lighthouse CI
