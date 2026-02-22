@@ -27,7 +27,7 @@ jobs:
       - name: 빌드
         run: npm run build
       - name: GitHub Pages 아티팩트 업로드
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
