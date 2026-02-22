@@ -13,6 +13,8 @@ dist-ssr/
 # Editor
 .vscode/*
 !.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
 *.swp
 *.swo

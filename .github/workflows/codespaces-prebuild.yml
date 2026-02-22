@@ -1,0 +1,25 @@
+name: Codespaces Prebuild
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - "package.json"
+      - "package-lock.json"
+      - "requirements.txt"
+  workflow_dispatch:
+
+jobs:
+  prebuild:
+    name: Create Codespaces Prebuild
+    runs-on: ubuntu-latest
+    permissions:
+      codespaces: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Codespaces prebuild 생성
+        uses: github/codespaces-precache@v2
+        with:
+          devcontainer-config: .devcontainer/devcontainer.json

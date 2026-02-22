@@ -2,11 +2,11 @@
 
 echo "=== Pre-commit 검증 시작 ==="
 
-# 1. 보안 취약점 검사 (high/critical)
+# 1. 보안 취약점 검사 (critical만 차단, high는 CI에서 검사)
 echo "[1/5] npm audit (보안 취약점 검사)..."
-npm audit --audit-level=high 2>/dev/null
+npm audit --audit-level=critical 2>/dev/null
 if [ $? -ne 0 ]; then
-  echo "❌ high/critical 보안 취약점이 있습니다. 커밋이 중단됩니다."
+  echo "❌ critical 보안 취약점이 있습니다. 커밋이 중단됩니다."
   echo "   수정: npm audit fix"
   exit 1
 fi
@@ -36,18 +36,8 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 5. E2E 테스트 (Playwright가 설치된 경우에만 실행)
-if npx playwright --version > /dev/null 2>&1 && [ -d "$HOME/.cache/ms-playwright" ] || [ -d "node_modules/playwright-core/.local-browsers" ]; then
-  echo "[5/5] E2E 테스트 (Playwright)..."
-  npx playwright test
-  if [ $? -ne 0 ]; then
-    echo "❌ E2E 테스트가 실패했습니다. 커밋이 중단됩니다."
-    echo "   스크린샷 갱신이 필요하면: npm run e2e:update-snapshots"
-    exit 1
-  fi
-else
-  echo "[5/5] E2E 테스트 건너뜀 (Playwright 브라우저 미설치)"
-  echo "   설치: npx playwright install chromium"
-fi
+# 5. E2E 테스트 — CI에서 자동 실행 (pre-commit에서는 건너뜀, 속도 최적화)
+echo "[5/5] E2E 테스트 건너뜀 (CI에서 자동 실행)"
+echo "   수동 실행: npm run e2e"
 
 echo "=== ✅ 모든 검증 통과! 커밋을 진행합니다. ==="

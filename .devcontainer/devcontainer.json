@@ -7,7 +7,8 @@
 
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
 
   "forwardPorts": [5173, 4173, 6080, 5900],
@@ -18,10 +19,26 @@
     "5900": { "label": "VNC Direct", "onAutoForward": "ignore" }
   },
 
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+
   "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "updateContentCommand": "npm install",
   "postStartCommand": "nohup /usr/local/bin/start-vnc.sh > /tmp/vnc.log 2>&1 &",
+  "postAttachCommand": "echo '✅ Dev Container 준비 완료! npm run dev 로 시작하세요.'",
+
+  "waitFor": "updateContentCommand",
 
   "remoteUser": "vscode",
+
+  "remoteEnv": {
+    "NODE_ENV": "development",
+    "VITE_APP_VERSION": "${localEnv:npm_package_version}",
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
 
   "customizations": {
     "vscode": {
@@ -32,7 +49,11 @@
         "ms-python.python",
         "ms-playwright.playwright",
         "vitest.explorer",
-        "streetsidesoftware.code-spell-checker"
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "christian-kohler.path-intellisense",
+        "github.copilot"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -40,9 +61,34 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit"
         },
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "editor.stickyScroll.enabled": true,
+        "editor.minimap.enabled": false,
+        "editor.inlineSuggest.enabled": true,
         "typescript.tsdk": "node_modules/typescript/lib",
-        "python.defaultInterpreterPath": "/usr/local/bin/python"
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "files.autoSave": "onFocusChange",
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/coverage": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/coverage": true,
+          "**/package-lock.json": true
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "testing.automaticallyOpenPeekView": "failureAnywhere"
       }
+    },
+    "codespaces": {
+      "openFiles": ["src/App.tsx"]
     }
   }
 }
