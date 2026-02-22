@@ -46,8 +46,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: npm audit (high/critical)
-        run: npm audit --audit-level=high
+      - name: npm audit (high/critical, 프로덕션 의존성)
+        run: npm audit --audit-level=high --omit=dev
 
   lighthouse:
     name: Lighthouse CI

@@ -6,23 +6,17 @@ on:
     paths:
       - ".devcontainer/**"
       - "package-lock.json"
-      - "requirements.txt"
   workflow_dispatch:
 
 jobs:
   prebuild:
     name: Prebuild Codespace
     runs-on: ubuntu-latest
-    permissions:
-      codespaces: write
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v4
+      - uses: actions/setup-node@v6
         with:
-          path: /tmp/.buildx-cache
-          key: codespace-${{ hashFiles('.devcontainer/**', 'package-lock.json') }}
-          restore-keys: codespace-
-      - name: Codespace Prebuild 트리거
-        uses: github/codespaces-precache@v2
-        if: github.repository_owner == github.actor
-        continue-on-error: true
+          node-version: 20
+          cache: npm
+      - name: 의존성 설치 (캐시 프라이밍)
+        run: npm ci
