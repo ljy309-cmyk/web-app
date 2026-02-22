@@ -15,7 +15,9 @@
     "analyze": "npm run build && open dist/bundle-stats.html",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check-all": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage && npm run build",
+    "lighthouse": "lhci autorun",
+    "test:a11y": "npm run build && lhci autorun",
+    "check-all": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage && npm run build && npm run lighthouse",
     "prepare": "husky"
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "@commitlint/cli": "^20.4.2",
     "@commitlint/config-conventional": "^20.4.2",
     "@eslint/js": "^9.21.0",
+    "@lhci/cli": "^0.15.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
