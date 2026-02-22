@@ -1,0 +1,55 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--color-accent);
+  height: 6px;
+  cursor: pointer;
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.info {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--color-primary);
+  border-radius: var(--radius);
+}
+
+.infoTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+}
+
+.infoText {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
