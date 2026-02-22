@@ -36,6 +36,9 @@ dev-dist/
 # Coverage
 coverage/
 
+# Dependency check timestamp
+.last-dep-check
+
 # Playwright artifacts
 playwright-report/
 test-results/
