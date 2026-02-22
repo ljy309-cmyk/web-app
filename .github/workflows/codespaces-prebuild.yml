@@ -1,0 +1,22 @@
+name: Codespaces Prebuild
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - "package-lock.json"
+  workflow_dispatch:
+
+jobs:
+  prebuild:
+    name: Prebuild Codespace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+      - name: 의존성 설치 (캐시 프라이밍)
+        run: npm ci

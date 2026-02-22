@@ -10,10 +10,11 @@ ARG WEBSOCKIFY_VERSION=0.11.0
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
+    && npm install -g @anthropic-ai/claude-code \
     && node --version && npm --version
 
 # ============================================================
-# 2. xvfb + VNC + noVNC (GUI 테스트 / Playwright 시각 확인용)
+# 2. xvfb + VNC + noVNC (GUI 확인용)
 # ============================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
@@ -36,18 +37,13 @@ RUN mkdir -p /opt/noVNC/utils/websockify \
     && ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html
 
 # ============================================================
-# 3. Playwright 시스템 의존성
-# ============================================================
-RUN npx playwright install-deps chromium
-
-# ============================================================
-# 4. Python 패키지 (Flask 등 백엔드용)
+# 3. Python 패키지 (Flask 등 백엔드용)
 # ============================================================
 COPY requirements.txt /tmp/requirements.txt
 RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
 
 # ============================================================
-# 5. xvfb + noVNC 시작 스크립트
+# 4. xvfb + noVNC 시작 스크립트
 # ============================================================
 COPY start-vnc.sh /usr/local/bin/start-vnc.sh
 RUN chmod +x /usr/local/bin/start-vnc.sh
