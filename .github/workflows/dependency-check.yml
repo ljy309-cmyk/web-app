@@ -91,6 +91,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 라벨이 없으면 생성
+          gh label create "dependency-major-update" \
+            --description "메이저 의존성 업데이트 알림" \
+            --color "0075ca" 2>/dev/null || true
           gh issue create \
             --title "📦 메이저 의존성 업데이트 ${{ steps.outdated.outputs.count }}건 확인" \
             --body "$(cat /tmp/issue-body.md)" \
