@@ -98,4 +98,11 @@ describe("ExperimentChart", () => {
     const chart2 = screen.getByTestId("line-chart");
     expect(chart2).toBeInTheDocument();
   });
+
+  it("스냅샷과 일치한다", () => {
+    const { container } = render(
+      <ExperimentChart temperature={300} magneticField={0} />
+    );
+    expect(container).toMatchSnapshot();
+  });
 });

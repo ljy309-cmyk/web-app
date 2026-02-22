@@ -23,4 +23,9 @@ describe("Header", () => {
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading).toHaveTextContent("Web App");
   });
+
+  it("스냅샷과 일치한다", () => {
+    const { container } = render(<Header />);
+    expect(container).toMatchSnapshot();
+  });
 });

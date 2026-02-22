@@ -79,4 +79,9 @@ describe("App", () => {
       screen.getByText("초전도 상태: 저항이 0에 근접합니다.")
     ).toBeInTheDocument();
   });
+
+  it("초기 상태 스냅샷과 일치한다", () => {
+    const { container } = render(<App />);
+    expect(container).toMatchSnapshot();
+  });
 });

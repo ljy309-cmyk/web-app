@@ -77,4 +77,14 @@ describe("ControlPanel", () => {
     render(<ControlPanel {...defaultProps} />);
     expect(screen.getByText("상태 정보")).toBeInTheDocument();
   });
+
+  it("초전도 상태 스냅샷과 일치한다", () => {
+    const { container } = render(<ControlPanel {...defaultProps} temperature={50} />);
+    expect(container).toMatchSnapshot();
+  });
+
+  it("일반 상태 스냅샷과 일치한다", () => {
+    const { container } = render(<ControlPanel {...defaultProps} temperature={300} />);
+    expect(container).toMatchSnapshot();
+  });
 });

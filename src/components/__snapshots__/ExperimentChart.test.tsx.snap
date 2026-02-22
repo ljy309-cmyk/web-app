@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ExperimentChart > 스냅샷과 일치한다 1`] = `
+<div>
+  <div
+    class="wrapper"
+  >
+    <h2
+      class="title"
+    >
+      온도-저항 그래프
+    </h2>
+    <p
+      class="description"
+    >
+      현재 온도: 
+      <strong>
+        300
+        K
+      </strong>
+       / 자기장:
+       
+      <strong>
+        0
+        T
+      </strong>
+    </p>
+    <div
+      class="chart"
+    >
+      <div
+        data-testid="responsive-container"
+      >
+        <div
+          data-length="201"
+          data-testid="line-chart"
+        >
+          <div
+            data-testid="cartesian-grid"
+          />
+          <div
+            data-key="temp"
+            data-testid="x-axis"
+          />
+          <div
+            data-testid="y-axis"
+          />
+          <div
+            data-testid="tooltip"
+          />
+          <div
+            data-testid="legend"
+          />
+          <div
+            data-name="저항"
+            data-testid="line-resistance"
+          />
+          <div
+            data-name="초전도 상태"
+            data-testid="line-superconducting"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
