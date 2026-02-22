@@ -34,3 +34,7 @@ dev-dist/
 
 # Coverage
 coverage/
+
+# Playwright artifacts
+playwright-report/
+test-results/
