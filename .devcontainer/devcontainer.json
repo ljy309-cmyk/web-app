@@ -42,7 +42,9 @@
         "esbenp.prettier-vscode",
         "ms-python.python",
         "vitest.explorer",
-        "streetsidesoftware.code-spell-checker"
+        "streetsidesoftware.code-spell-checker",
+        "DavidAnson.vscode-markdownlint",
+        "eamodio.gitlens"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
