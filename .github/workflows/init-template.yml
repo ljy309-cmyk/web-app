@@ -1,0 +1,55 @@
+name: Initialize from Template
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  init:
+    # 첫 번째 실행에서만 동작 (템플릿에서 레포 생성 직후)
+    if: github.run_number == 1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 프로젝트 이름 추출
+        id: meta
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          echo "repo_name=$REPO_NAME" >> "$GITHUB_OUTPUT"
+
+          # kebab-case → Title Case 변환 (예: my-cool-app → My Cool App)
+          DISPLAY_NAME=$(echo "$REPO_NAME" | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
+          echo "display_name=$DISPLAY_NAME" >> "$GITHUB_OUTPUT"
+
+          # kebab-case → PascalCase 변환 (예: my-cool-app → MyCoolApp)
+          SHORT_NAME=$(echo "$REPO_NAME" | sed -r 's/(^|-)(\w)/\U\2/g')
+          echo "short_name=$SHORT_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: package.json 업데이트
+        run: |
+          sed -i 's/"name": "web-app"/"name": "${{ steps.meta.outputs.repo_name }}"/' package.json
+
+      - name: vite.config.ts 업데이트 (GitHub Pages base 경로)
+        run: |
+          sed -i 's|"/web-app/"|"/${{ steps.meta.outputs.repo_name }}/"|' vite.config.ts
+
+      - name: vite.config.ts 업데이트 (PWA manifest)
+        run: |
+          sed -i 's/name: "Web App"/name: "${{ steps.meta.outputs.display_name }}"/' vite.config.ts
+          sed -i 's/short_name: "WebApp"/short_name: "${{ steps.meta.outputs.short_name }}"/' vite.config.ts
+          sed -i 's/description: "Interactive web application with real-time graphs"/description: "${{ steps.meta.outputs.display_name }}"/' vite.config.ts
+
+      - name: 이 워크플로우 자체를 삭제
+        run: rm .github/workflows/init-template.yml
+
+      - name: 변경사항 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: initialize project from template"
+          git push

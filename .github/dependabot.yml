@@ -19,6 +19,10 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      # 메이저 업데이트는 별도 그룹으로 묶어서 한 개의 PR로 관리
+      major-updates:
+        update-types:
+          - "major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -26,3 +30,11 @@ updates:
       interval: "weekly"
     labels:
       - "ci"
+    groups:
+      actions-major:
+        update-types:
+          - "major"
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"

@@ -21,5 +21,4 @@
 
 - [ ] `npm run check-all` 통과 (typecheck + lint + test coverage 100%)
 - [ ] 스냅샷 갱신 필요 시 `npx vitest run --update` 실행
-- [ ] E2E 스크린샷 갱신 필요 시 `npm run e2e:update-snapshots` 실행
 - [ ] 새 컴포넌트에 접근성(a11y) 고려
