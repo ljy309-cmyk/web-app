@@ -26,6 +26,10 @@
     "memory": "4gb"
   },
 
+  "remoteEnv": {
+    "TZ": "Asia/Seoul"
+  },
+
   "remoteUser": "vscode",
 
   "customizations": {
