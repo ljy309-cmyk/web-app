@@ -8,11 +8,6 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-    # 메이저 버전 업데이트는 breaking change가 포함되므로 자동 PR 생성을 차단
-    # 메이저 업그레이드는 수동으로 진행 (npm outdated로 확인)
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
     groups:
       dev-dependencies:
         dependency-type: "development"
@@ -24,6 +19,10 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      # 메이저 업데이트는 별도 그룹으로 묶어서 한 개의 PR로 관리
+      major-updates:
+        update-types:
+          - "major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -31,6 +30,11 @@ updates:
       interval: "weekly"
     labels:
       - "ci"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    groups:
+      actions-major:
+        update-types:
+          - "major"
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
