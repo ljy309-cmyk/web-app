@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye
+FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
 
 ARG NOVNC_VERSION=1.4.0
 ARG WEBSOCKIFY_VERSION=0.11.0
@@ -12,8 +12,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # ============================================================
 # 2. xvfb + VNC + noVNC (GUI 확인용)
 # ============================================================
-RUN rm -f /etc/apt/sources.list.d/yarn.list \
-    && apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     x11vnc \
     fluxbox \
