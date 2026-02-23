@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: TypeScript 타입 체크
         run: npx tsc --noEmit
       - name: ESLint (a11y 포함, 워닝=에러)
@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: 테스트 + 커버리지 100%
         run: npx vitest run --coverage
 
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: npm audit (high/critical, 프로덕션 의존성)
         run: |
           npm audit --omit=dev --json > audit-report.json 2>&1 || true
@@ -77,7 +77,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: 빌드
         run: npm run build
       - name: Lighthouse CI
