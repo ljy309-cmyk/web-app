@@ -1,59 +1,15 @@
-FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye
+FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
 
-ARG NOVNC_VERSION=1.4.0
-ARG WEBSOCKIFY_VERSION=0.11.0
-
-# ============================================================
-# 1. 한국 시간대(KST) 설정
-# ============================================================
-ENV TZ=Asia/Seoul
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# ============================================================
-# 2. xvfb + VNC + noVNC (GUI 확인용)
-# ============================================================
-RUN rm -f /etc/apt/sources.list.d/yarn.list \
-    && apt-get update && apt-get install -y --no-install-recommends \
-    xvfb \
-    x11vnc \
-    fluxbox \
-    xterm \
-    net-tools \
-    procps \
-    curl \
-    wget \
-    unzip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# noVNC 설치
-RUN mkdir -p /opt/noVNC/utils/websockify \
-    && wget -qO- https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz \
-       | tar xz --strip-components=1 -C /opt/noVNC \
-    && wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.tar.gz \
-       | tar xz --strip-components=1 -C /opt/noVNC/utils/websockify \
-    && ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html
-
-# ============================================================
-# 3. Python 패키지 (Flask 등 백엔드용)
-# ============================================================
-COPY requirements.txt /tmp/requirements.txt
-RUN if [ -f /tmp/requirements.txt ]; then pip install --no-cache-dir -r /tmp/requirements.txt; fi
-
-# ============================================================
-# 4. xvfb + noVNC 시작 스크립트
-# ============================================================
-COPY .devcontainer/start-vnc.sh /usr/local/bin/start-vnc.sh
-RUN chmod +x /usr/local/bin/start-vnc.sh
-
-# 환경 변수
-ENV DISPLAY=:99
-ENV VNC_PORT=5900
-ENV NOVNC_PORT=6080
-ENV SCREEN_WIDTH=1280
-ENV SCREEN_HEIGHT=720
-ENV SCREEN_DEPTH=24
-
-EXPOSE 5173 4173 6080 5900
-
-# vscode 사용자로 전환
-USER vscode
+# Install Node.js 20 via NodeSource (using the new GPG key method,
+# since the legacy setup_XX.x scripts are deprecated and broken on many distros)
+ARG NODE_VERSION=20
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+       | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" \
+       > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && node --version && npm --version

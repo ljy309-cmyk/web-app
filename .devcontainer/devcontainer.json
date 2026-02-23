@@ -1,16 +1,12 @@
 {
   "name": "Web App Dev Container",
   "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
+    "dockerfile": "Dockerfile"
   },
 
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    }
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
   "forwardPorts": [5173, 4173, 6080, 5900],
@@ -27,6 +23,15 @@
   "hostRequirements": {
     "cpus": 2,
     "memory": "4gb"
+  },
+
+  "containerEnv": {
+    "DISPLAY": ":99",
+    "VNC_PORT": "5900",
+    "NOVNC_PORT": "6080",
+    "SCREEN_WIDTH": "1280",
+    "SCREEN_HEIGHT": "720",
+    "SCREEN_DEPTH": "24"
   },
 
   "remoteEnv": {
