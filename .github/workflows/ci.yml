@@ -89,37 +89,66 @@ jobs:
       - name: 접근성 실패 audit 상세 출력
         if: always()
         run: |
-          echo "=== Lighthouse 접근성 결과 분석 ==="
+          echo "=== Lighthouse 버전 정보 ==="
+          node -e "
+            const paths = [
+              '/home/runner/work/_actions/treosh/lighthouse-ci-action/v12/node_modules/lighthouse/package.json',
+              '/home/runner/work/_actions/treosh/lighthouse-ci-action/v12/node_modules/@lhci/cli/package.json'
+            ];
+            for (const p of paths) {
+              try { const pkg = require(p); console.log(pkg.name + '@' + pkg.version); } catch(e) { console.log('Not found:', p); }
+            }
+          " || true
+          echo ""
+          echo "=== .lighthouseci 디렉토리 내용 ==="
           ls -la .lighthouseci/ || true
+          echo ""
+          echo "=== Lighthouse 접근성 결과 분석 ==="
           for f in .lighthouseci/*.report.json; do
+            [ -f "$f" ] || { echo "리포트 파일 없음"; break; }
             echo "--- Report: $f ---"
             node -e "
               const r = require('./' + process.argv[1]);
-              const cat = r.categories.accessibility;
-              console.log('Score:', cat.score);
+              console.log('Lighthouse 버전:', r.lighthouseVersion);
+              console.log('User Agent:', r.userAgent);
+              console.log('요청 URL:', r.requestedUrl);
+              console.log('최종 URL:', r.finalUrl || r.mainDocumentUrl);
               console.log('');
-              console.log('실패한 audits:');
+              const cat = r.categories.accessibility;
+              console.log('접근성 Score:', cat.score);
+              console.log('');
+              let totalW = 0, passW = 0;
+              console.log('=== FAIL (가중치 있는) ===');
               for (const ref of cat.auditRefs) {
                 const a = r.audits[ref.id];
-                if (a && a.score !== null && a.score < 1 && ref.weight > 0) {
-                  console.log('  FAIL:', ref.id, '| score:', a.score, '| weight:', ref.weight);
-                  console.log('    Title:', a.title);
-                  console.log('    Description:', a.description?.substring(0, 200));
-                  if (a.details?.items) {
-                    a.details.items.slice(0, 5).forEach(item => {
-                      console.log('    Item:', JSON.stringify(item).substring(0, 300));
-                    });
+                if (ref.weight > 0 && a && a.score !== null) {
+                  totalW += ref.weight;
+                  if (a.score >= 1) passW += ref.weight;
+                  if (a.score < 1) {
+                    console.log('  FAIL:', ref.id, '| score:', a.score, '| weight:', ref.weight);
+                    console.log('    Title:', a.title);
+                    console.log('    Description:', (a.description || '').substring(0, 200));
+                    if (a.details && a.details.items) {
+                      a.details.items.slice(0, 5).forEach((item, i) => {
+                        console.log('    Item[' + i + ']:', JSON.stringify(item).substring(0, 400));
+                      });
+                    }
                   }
                 }
               }
               console.log('');
-              console.log('모든 weighted audits:');
+              console.log('=== 모든 가중치 audit 결과 ===');
               for (const ref of cat.auditRefs) {
                 const a = r.audits[ref.id];
                 if (ref.weight > 0) {
-                  console.log('  ', a?.score === 1 ? 'PASS' : 'FAIL', ref.id, '| score:', a?.score, '| weight:', ref.weight);
+                  const status = (!a || a.score === null) ? 'N/A' : (a.score >= 1 ? 'PASS' : 'FAIL');
+                  console.log('  [' + status + '] ' + ref.id + ' (weight:' + ref.weight + (a ? ', score:' + a.score : '') + ')');
                 }
               }
+              console.log('');
+              console.log('총 applicable 가중치:', totalW);
+              console.log('통과 가중치:', passW);
+              console.log('계산 점수:', passW + '/' + totalW, '=', (passW / totalW).toFixed(4));
             " "$f"
             break
           done
