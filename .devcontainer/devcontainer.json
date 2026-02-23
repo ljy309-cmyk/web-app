@@ -53,7 +53,10 @@
           "source.fixAll.eslint": "explicit"
         },
         "typescript.tsdk": "node_modules/typescript/lib",
-        "python.defaultInterpreterPath": "/usr/local/bin/python"
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "git.rebaseWhenSync": true,
+        "git.autofetch": false,
+        "git.pullTags": false
       }
     }
   }
