@@ -3,9 +3,9 @@
 exports[`App > 스냅샷과 일치한다 1`] = `
 <div>
   <main>
-    <p>
+    <h1>
       안녕하세요
-    </p>
+    </h1>
   </main>
 </div>
 `;
