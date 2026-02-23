@@ -8,10 +8,34 @@ echo "[1/5] Git 설정..."
 git config pull.rebase true
 git config init.defaultBranch main
 
-# 로컬 master 브랜치가 있고 main이 없으면 master → main으로 이름 변경
-if git show-ref --verify --quiet refs/heads/master && ! git show-ref --verify --quiet refs/heads/main; then
-  echo "  master → main 브랜치 이름 변경..."
-  git branch -m master main
+# origin/main fetch 및 origin/HEAD 설정
+if git show-ref --verify --quiet refs/remotes/origin/main; then
+  git remote set-head origin main 2>/dev/null || true
+fi
+
+# 로컬 master → main 정리: origin/main 기준으로 재생성
+if git show-ref --verify --quiet refs/heads/master; then
+  if ! git show-ref --verify --quiet refs/heads/main; then
+    CURRENT_BRANCH=$(git branch --show-current)
+    if [ "$CURRENT_BRANCH" = "master" ]; then
+      echo "  master → main 브랜치 이름 변경 (origin/main으로 리셋)..."
+      git checkout -B main origin/main
+      git branch -D master 2>/dev/null || true
+    else
+      echo "  master 삭제 후 main 생성 (origin/main 기준)..."
+      git branch -D master 2>/dev/null || true
+      git branch main origin/main
+    fi
+  else
+    echo "  불필요한 master 브랜치 삭제..."
+    git branch -D master 2>/dev/null || true
+  fi
+fi
+
+# main 브랜치가 없으면 origin/main에서 생성
+if ! git show-ref --verify --quiet refs/heads/main && git show-ref --verify --quiet refs/remotes/origin/main; then
+  echo "  main 브랜치 생성 (origin/main 기준)..."
+  git branch main origin/main
 fi
 
 # main 브랜치의 upstream 설정
