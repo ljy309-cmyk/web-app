@@ -6,6 +6,6 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "git.rebaseWhenSync": true,
-  "git.autofetch": false,
-  "git.pullTags": false
+  "git.autofetch": true,
+  "git.autofetchPeriod": 120
 }

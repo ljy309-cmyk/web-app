@@ -3,24 +3,40 @@ set -e
 
 echo "=== Post-create setup ==="
 
-# 1. Claude Code CLI 전역 설치
-echo "[1/4] Claude Code CLI 설치..."
+# 1. Git 설정 - divergent branches 오류 방지
+echo "[1/5] Git 설정..."
+git config pull.rebase true
+git config init.defaultBranch main
+
+# 로컬 master 브랜치가 있고 main이 없으면 master → main으로 이름 변경
+if git show-ref --verify --quiet refs/heads/master && ! git show-ref --verify --quiet refs/heads/main; then
+  echo "  master → main 브랜치 이름 변경..."
+  git branch -m master main
+fi
+
+# main 브랜치의 upstream 설정
+if git show-ref --verify --quiet refs/heads/main && git show-ref --verify --quiet refs/remotes/origin/main; then
+  git branch --set-upstream-to=origin/main main 2>/dev/null || true
+fi
+
+# 2. Claude Code CLI 전역 설치
+echo "[2/5] Claude Code CLI 설치..."
 npm install -g @anthropic-ai/claude-code
 
-# 2. npm 의존성 설치
-echo "[2/4] npm install..."
+# 3. npm 의존성 설치
+echo "[3/5] npm install..."
 npm install
 
-# 3. Husky git hooks 활성화
-echo "[3/4] Husky hooks 설정..."
+# 4. Husky git hooks 활성화
+echo "[4/5] Husky hooks 설정..."
 npx husky
 
-# 4. Python 의존성 (requirements.txt가 있으면)
+# 5. Python 의존성 (requirements.txt가 있으면)
 if [ -f requirements.txt ]; then
-  echo "[4/4] Python 패키지 설치..."
+  echo "[5/5] Python 패키지 설치..."
   pip install -r requirements.txt
 else
-  echo "[4/4] requirements.txt 없음, 건너뜀"
+  echo "[5/5] requirements.txt 없음, 건너뜀"
 fi
 
 echo "=== Setup 완료! ==="
