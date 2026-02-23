@@ -90,7 +90,8 @@ jobs:
         if: always()
         run: |
           echo "=== Lighthouse 접근성 결과 분석 ==="
-          for f in .lighthouseci/lhr-*.json; do
+          ls -la .lighthouseci/ || true
+          for f in .lighthouseci/*.report.json; do
             echo "--- Report: $f ---"
             node -e "
               const r = require('./' + process.argv[1]);
