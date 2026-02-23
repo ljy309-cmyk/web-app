@@ -1,7 +1,7 @@
 function App() {
   return (
     <main>
-      <p>안녕하세요</p>
+      <h1>안녕하세요</h1>
     </main>
   );
 }

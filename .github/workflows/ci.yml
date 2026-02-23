@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: TypeScript 타입 체크
         run: npx tsc --noEmit
       - name: ESLint (a11y 포함, 워닝=에러)
@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: 테스트 + 커버리지 100%
         run: npx vitest run --coverage
 
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: npm audit (high/critical, 프로덕션 의존성)
         run: |
           npm audit --omit=dev --json > audit-report.json 2>&1 || true
@@ -77,11 +77,47 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - name: 빌드
         run: npm run build
-      - name: Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          uploadArtifacts: true
-          configPath: ./lighthouserc.json
+      - name: Lighthouse CI 실행
+        run: |
+          npm install -g @lhci/cli@0.14
+          lhci autorun --config=lighthouserc.json 2>&1 || LHCI_EXIT=$?
+          echo ""
+          echo "=== LHCI 종료 코드: ${LHCI_EXIT:-0} ==="
+          echo ""
+          echo "=== 모든 카테고리 결과 ==="
+          for f in .lighthouseci/*.report.json; do
+            [ -f "$f" ] || { echo "리포트 파일 없음"; break; }
+            node -e "
+              const r = require('./' + process.argv[1]);
+              const cats = r.categories;
+              for (const [key, cat] of Object.entries(cats)) {
+                console.log(key + ': ' + (cat.score * 100).toFixed(0) + '%');
+              }
+              console.log('');
+              for (const [key, cat] of Object.entries(cats)) {
+                const fails = cat.auditRefs.filter(ref => {
+                  const a = r.audits[ref.id];
+                  return ref.weight > 0 && a && a.score !== null && a.score < 1;
+                });
+                if (fails.length > 0) {
+                  console.log('=== ' + key + ' 실패 항목 ===');
+                  for (const ref of fails) {
+                    const a = r.audits[ref.id];
+                    console.log('  FAIL: ' + ref.id + ' (score:' + a.score + ', weight:' + ref.weight + ')');
+                    console.log('    ' + a.title);
+                    if (a.details?.items) {
+                      a.details.items.slice(0, 3).forEach((item, i) =>
+                        console.log('    [' + i + '] ' + JSON.stringify(item).substring(0, 300))
+                      );
+                    }
+                  }
+                  console.log('');
+                }
+              }
+            " "$f"
+            break
+          done
+          exit ${LHCI_EXIT:-0}
