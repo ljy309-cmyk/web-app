@@ -4,8 +4,10 @@ import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 
+const base = process.env.GITHUB_ACTIONS ? "/web-app/" : "/";
+
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS ? "/web-app/" : "/",
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -19,8 +21,9 @@ export default defineConfig({
         background_color: "#1a1a2e",
         display: "standalone",
         orientation: "portrait",
-        scope: "/",
-        start_url: "/",
+        scope: base,
+        start_url: base,
+        lang: "ko",
         icons: [
           {
             src: "pwa-192x192.png",
