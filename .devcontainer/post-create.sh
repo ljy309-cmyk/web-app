@@ -47,24 +47,38 @@ if git show-ref --verify --quiet refs/remotes/origin/main; then
   git branch --set-upstream-to=origin/main main 2>/dev/null || true
 fi
 
-# 2. Claude Code CLI 전역 설치
-echo "[2/5] Claude Code CLI 설치..."
+# 2. Node.js PATH 보정
+# devcontainer feature(nvm)로 설치된 node/npm을 VS Code가 찾을 수 있도록
+# /usr/local/bin에 심볼릭 링크 생성
+echo "[2/6] Node.js PATH 보정..."
+if command -v node &>/dev/null; then
+  NODE_BIN_DIR=$(dirname "$(which node)")
+  if [ "$NODE_BIN_DIR" != "/usr/local/bin" ] && [ "$NODE_BIN_DIR" != "/usr/bin" ]; then
+    echo "  nvm Node 경로: $NODE_BIN_DIR → /usr/local/bin 링크 생성"
+    sudo ln -sf "$NODE_BIN_DIR/node" /usr/local/bin/node 2>/dev/null || true
+    sudo ln -sf "$NODE_BIN_DIR/npm" /usr/local/bin/npm 2>/dev/null || true
+    sudo ln -sf "$NODE_BIN_DIR/npx" /usr/local/bin/npx 2>/dev/null || true
+  fi
+fi
+
+# 3. Claude Code CLI 전역 설치
+echo "[3/6] Claude Code CLI 설치..."
 npm install -g @anthropic-ai/claude-code
 
-# 3. npm 의존성 설치
-echo "[3/5] npm install..."
+# 4. npm 의존성 설치
+echo "[4/6] npm install..."
 npm install
 
-# 4. Husky git hooks 활성화
-echo "[4/5] Husky hooks 설정..."
+# 5. Husky git hooks 활성화
+echo "[5/6] Husky hooks 설정..."
 npx husky
 
-# 5. Python 의존성 (requirements.txt가 있으면)
+# 6. Python 의존성 (requirements.txt가 있으면)
 if [ -f requirements.txt ]; then
-  echo "[5/5] Python 패키지 설치..."
+  echo "[6/6] Python 패키지 설치..."
   pip install -r requirements.txt
 else
-  echo "[5/5] requirements.txt 없음, 건너뜀"
+  echo "[6/6] requirements.txt 없음, 건너뜀"
 fi
 
 echo "=== Setup 완료! ==="

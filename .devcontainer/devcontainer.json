@@ -31,6 +31,7 @@
 
   "remoteEnv": {
     "TZ": "Asia/Seoul",
+    "PATH": "${containerEnv:PATH}:/usr/local/share/nvm/current/bin",
     "GIT_CONFIG_COUNT": "2",
     "GIT_CONFIG_KEY_0": "pull.rebase",
     "GIT_CONFIG_VALUE_0": "true",

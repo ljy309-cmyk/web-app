@@ -51,12 +51,23 @@ if git show-ref --verify --quiet refs/remotes/origin/main; then
   git branch --set-upstream-to=origin/main main 2>/dev/null || true
 fi
 
-# 2. npm 의존성 설치
-echo "[2/3] npm install..."
+# 2. Node.js PATH 보정 (nvm → /usr/local/bin 심볼릭 링크)
+echo "[2/4] Node.js PATH 보정..."
+if command -v node &>/dev/null; then
+  NODE_BIN_DIR=$(dirname "$(which node)")
+  if [ "$NODE_BIN_DIR" != "/usr/local/bin" ] && [ "$NODE_BIN_DIR" != "/usr/bin" ]; then
+    sudo ln -sf "$NODE_BIN_DIR/node" /usr/local/bin/node 2>/dev/null || true
+    sudo ln -sf "$NODE_BIN_DIR/npm" /usr/local/bin/npm 2>/dev/null || true
+    sudo ln -sf "$NODE_BIN_DIR/npx" /usr/local/bin/npx 2>/dev/null || true
+  fi
+fi
+
+# 3. npm 의존성 설치
+echo "[3/4] npm install..."
 npm install
 
-# 3. VNC 서버 시작
-echo "[3/3] VNC 서버 시작..."
+# 4. VNC 서버 시작
+echo "[4/4] VNC 서버 시작..."
 nohup /usr/local/bin/start-vnc.sh > /tmp/vnc.log 2>&1 &
 
 echo "=== Post-start 완료! ==="
