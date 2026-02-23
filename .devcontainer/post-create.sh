@@ -61,24 +61,38 @@ if command -v node &>/dev/null; then
   fi
 fi
 
-# 3. Claude Code CLI 전역 설치
-echo "[3/6] Claude Code CLI 설치..."
+# 3. GitHub CLI (gh) 설치 확인
+echo "[3/7] GitHub CLI 확인..."
+if ! command -v gh &>/dev/null; then
+  echo "  gh가 없습니다. 직접 설치합니다..."
+  GH_VERSION="2.67.0"
+  curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" -o /tmp/gh.tar.gz \
+    && tar xzf /tmp/gh.tar.gz -C /tmp \
+    && sudo cp "/tmp/gh_${GH_VERSION}_linux_amd64/bin/gh" /usr/local/bin/gh \
+    && rm -rf /tmp/gh.tar.gz "/tmp/gh_${GH_VERSION}_linux_amd64" \
+    && echo "  gh $(gh --version | head -1) 설치 완료"
+else
+  echo "  gh $(gh --version | head -1) 이미 설치됨"
+fi
+
+# 4. Claude Code CLI 전역 설치
+echo "[4/7] Claude Code CLI 설치..."
 npm install -g @anthropic-ai/claude-code
 
-# 4. npm 의존성 설치
-echo "[4/6] npm install..."
+# 5. npm 의존성 설치
+echo "[5/7] npm install..."
 npm install
 
-# 5. Husky git hooks 활성화
-echo "[5/6] Husky hooks 설정..."
+# 6. Husky git hooks 활성화
+echo "[6/7] Husky hooks 설정..."
 npx husky
 
-# 6. Python 의존성 (requirements.txt가 있으면)
+# 7. Python 의존성 (requirements.txt가 있으면)
 if [ -f requirements.txt ]; then
-  echo "[6/6] Python 패키지 설치..."
+  echo "[7/7] Python 패키지 설치..."
   pip install -r requirements.txt
 else
-  echo "[6/6] requirements.txt 없음, 건너뜀"
+  echo "[7/7] requirements.txt 없음, 건너뜀"
 fi
 
 echo "=== Setup 완료! ==="
