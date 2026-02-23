@@ -81,7 +81,44 @@ jobs:
       - name: 빌드
         run: npm run build
       - name: Lighthouse CI
+        id: lhci
         uses: treosh/lighthouse-ci-action@v12
         with:
           uploadArtifacts: true
           configPath: ./lighthouserc.json
+      - name: 접근성 실패 audit 상세 출력
+        if: always()
+        run: |
+          echo "=== Lighthouse 접근성 결과 분석 ==="
+          for f in .lighthouseci/lhr-*.json; do
+            echo "--- Report: $f ---"
+            node -e "
+              const r = require('./' + process.argv[1]);
+              const cat = r.categories.accessibility;
+              console.log('Score:', cat.score);
+              console.log('');
+              console.log('실패한 audits:');
+              for (const ref of cat.auditRefs) {
+                const a = r.audits[ref.id];
+                if (a && a.score !== null && a.score < 1 && ref.weight > 0) {
+                  console.log('  FAIL:', ref.id, '| score:', a.score, '| weight:', ref.weight);
+                  console.log('    Title:', a.title);
+                  console.log('    Description:', a.description?.substring(0, 200));
+                  if (a.details?.items) {
+                    a.details.items.slice(0, 5).forEach(item => {
+                      console.log('    Item:', JSON.stringify(item).substring(0, 300));
+                    });
+                  }
+                }
+              }
+              console.log('');
+              console.log('모든 weighted audits:');
+              for (const ref of cat.auditRefs) {
+                const a = r.audits[ref.id];
+                if (ref.weight > 0) {
+                  console.log('  ', a?.score === 1 ? 'PASS' : 'FAIL', ref.id, '| score:', a?.score, '| weight:', ref.weight);
+                }
+              }
+            " "$f"
+            break
+          done
