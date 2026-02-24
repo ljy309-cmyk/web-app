@@ -2,7 +2,7 @@
 name = "web-app-backend"
 version = "0.1.0"
 description = "초전도체 실험 대시보드 백엔드 API"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.34.0",
@@ -29,7 +29,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
@@ -40,8 +40,47 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "fastapi",
+    "fastapi.*",
+    "sqlalchemy",
+    "sqlalchemy.*",
+    "alembic",
+    "alembic.*",
+    "jose",
+    "jose.*",
+    "passlib",
+    "passlib.*",
+    "celery",
+    "celery.*",
+    "redis",
+    "redis.*",
+    "pydantic_settings",
+    "pydantic_settings.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "app.main",
+    "app.api.*",
+]
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = [
+    "app.core.config",
+    "app.models.*",
+    "app.db.*",
+]
+disallow_subclassing_any = false
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
 
 [build-system]
 requires = ["hatchling"]

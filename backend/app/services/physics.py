@@ -13,10 +13,10 @@ def get_critical_temperature(magnetic_field: float) -> float:
     return TC_BASE * (1 - ratio * ratio)
 
 
-def generate_resistance_data(magnetic_field: float) -> list[dict]:
+def generate_resistance_data(magnetic_field: float) -> list[dict[str, float | int]]:
     """온도-저항 데이터를 생성합니다."""
     tc = get_critical_temperature(magnetic_field)
-    data: list[dict] = []
+    data: list[dict[str, float | int]] = []
 
     for t in range(0, 401, 2):
         if t < tc:

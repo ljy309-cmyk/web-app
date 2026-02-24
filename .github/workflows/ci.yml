@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - name: 의존성 설치
         run: pip install -e ".[dev]"
       - name: Ruff 린트
@@ -99,7 +99,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - name: 의존성 설치
         run: pip install -e ".[dev]"
       - name: 테스트 + 커버리지
