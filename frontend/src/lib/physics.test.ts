@@ -19,11 +19,11 @@ describe("getCriticalTemperature", () => {
     expect(getCriticalTemperature(50)).toBeGreaterThanOrEqual(0);
   });
 
-  it("음수 자기장에서 임계온도가 기본값보다 높아진다", () => {
-    // 음수 / 30 → 음수 ratio, (1 - ratio^2)는 동일하지만 ratio = min(-val, 0.99)
-    // 실제로 음수는 ratio가 음수 → ratio^2 양수 → Tc < 92
+  it("음수 자기장에서도 ratio²은 양수이므로 임계온도가 낮아진다", () => {
+    // ratio = -5/30 = -0.167, ratio² = 0.028 → Tc = 92 * (1 - 0.028) ≈ 89.4
     const tc = getCriticalTemperature(-5);
     expect(tc).toBeLessThan(92);
+    expect(tc).toBeGreaterThan(0);
   });
 });
 
