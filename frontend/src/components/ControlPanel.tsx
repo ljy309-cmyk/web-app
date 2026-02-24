@@ -1,3 +1,5 @@
+import { getCriticalTemperature } from "@/lib/physics";
+
 interface ControlPanelProps {
   temperature: number;
   magneticField: number;
@@ -11,6 +13,8 @@ export default function ControlPanel({
   onTemperatureChange,
   onMagneticFieldChange,
 }: ControlPanelProps) {
+  const tc = getCriticalTemperature(magneticField);
+
   return (
     <div className="rounded-lg bg-surface border border-border p-6">
       <h2 className="mb-6 text-lg font-semibold text-text-main">실험 제어</h2>
@@ -56,10 +60,11 @@ export default function ControlPanel({
       <div className="rounded-lg bg-primary/30 p-4">
         <h3 className="mb-2 text-sm font-semibold text-text-main">상태 정보</h3>
         <p className="text-sm text-text-muted">
-          {temperature < 92
+          {temperature < tc
             ? "초전도 상태: 저항이 0에 근접합니다."
             : "일반 상태: 온도가 임계점 이상입니다."}
         </p>
+        <p className="mt-1 text-xs text-text-muted">임계온도: {tc.toFixed(1)} K</p>
       </div>
     </div>
   );

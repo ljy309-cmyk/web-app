@@ -17,7 +17,7 @@ architecture:
 
   backend:
     framework: FastAPI
-    language: Python 3.12
+    language: Python 3.11+
     orm: SQLAlchemy 2.0
     migrations: Alembic
     task_queue: Celery + Redis

@@ -16,7 +16,7 @@ const TC_BASE = 92; // YBCO 임계온도 (K)
  * 자기장에 따른 임계온도 보정
  * Tc(B) = Tc(0) * (1 - (B/Bc2)^2)
  */
-function getCriticalTemperature(magneticField: number): number {
+export function getCriticalTemperature(magneticField: number): number {
   const bc2 = 30; // 상부 임계자기장 (T)
   const ratio = Math.min(magneticField / bc2, 0.99);
   return TC_BASE * (1 - ratio * ratio);
