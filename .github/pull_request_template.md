@@ -11,14 +11,18 @@
 
 - [ ] feat: 새 기능
 - [ ] fix: 버그 수정
-- [ ] refactor: 리팩토링
 - [ ] docs: 문서
+- [ ] style: 코드 스타일 (포맷팅 등)
+- [ ] refactor: 리팩토링
+- [ ] perf: 성능 개선
 - [ ] test: 테스트
+- [ ] build: 빌드 시스템
 - [ ] ci: CI/CD
 - [ ] chore: 기타
+- [ ] revert: 되돌리기
 
 ## Checklist
 
-- [ ] `npm run check-all` 통과 (typecheck + lint + test coverage 100%)
+- [ ] typecheck + lint + test 통과
 - [ ] 스냅샷 갱신 필요 시 `npx vitest run --update` 실행
 - [ ] 새 컴포넌트에 접근성(a11y) 고려

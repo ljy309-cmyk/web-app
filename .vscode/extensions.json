@@ -4,6 +4,10 @@
     "esbenp.prettier-vscode",
     "vitest.explorer",
     "streetsidesoftware.code-spell-checker",
-    "emilast.LogFileHighlighter"
+    "emilast.LogFileHighlighter",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "bradlc.vscode-tailwindcss"
   ]
 }
