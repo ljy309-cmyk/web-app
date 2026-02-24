@@ -1,0 +1,46 @@
+project:
+  name: web-app
+  description: Full Stack 실시간 초전도체 실험 대시보드
+  language: ko
+
+architecture:
+  type: full-stack monorepo
+  frontend:
+    framework: Next.js 15
+    language: TypeScript
+    styling: Tailwind CSS
+    state: Zustand
+    realtime: Socket.IO
+    charts: Recharts
+    testing: Vitest
+    directory: frontend/
+
+  backend:
+    framework: FastAPI
+    language: Python 3.12
+    orm: SQLAlchemy 2.0
+    migrations: Alembic
+    task_queue: Celery + Redis
+    database: PostgreSQL 16
+    testing: pytest
+    directory: backend/
+
+  infrastructure:
+    containerization: Docker Compose
+    dev_environment: GitHub Codespaces
+    ci_cd: GitHub Actions
+
+domain:
+  subject: 초전도체 물리 실험
+  material: YBCO (이트륨 바륨 구리 산화물)
+  critical_temperature: 92K
+  features:
+    - 온도-저항 그래프 시각화
+    - 자기장에 따른 임계온도 보정
+    - 실시간 실험 데이터 모니터링
+
+conventions:
+  language: 한국어 (코드 주석, 커밋 메시지, 문서)
+  commit: Conventional Commits
+  formatting: Prettier (frontend), Ruff (backend)
+  linting: ESLint (frontend), Ruff + Mypy (backend)

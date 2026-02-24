@@ -1,54 +1,93 @@
 # Web App
 
-React + TypeScript + PWA 기반의 실시간 실험 대시보드 웹 애플리케이션입니다.
+Full Stack 실시간 실험 대시보드 웹 애플리케이션입니다.
 
 ## 기술 스택
 
+### Frontend
+
+- **Next.js 15** (App Router + Turbopack)
 - **React 19** + **TypeScript**
-- **Vite** (빌드 도구)
+- **Tailwind CSS** (스타일링)
+- **Zustand** (상태 관리)
 - **Recharts** (실시간 그래프)
-- **PWA** (안드로이드 설치 지원)
-- **CSS Modules** (스타일링)
+- **Socket.IO** (실시간 통신)
+
+### Backend
+
+- **FastAPI** (Python 3.12)
+- **SQLAlchemy** (ORM)
+- **Alembic** (DB 마이그레이션)
+- **Celery** + **Redis** (비동기 작업 큐)
+- **PostgreSQL** (데이터베이스)
+
+### 인프라
+
+- **Docker Compose** (컨테이너 오케스트레이션)
+- **GitHub Codespaces** (클라우드 개발 환경)
+- **GitHub Actions** (CI/CD)
 
 ## 시작하기
 
-```bash
-# 의존성 설치
-npm install
+### Docker Compose (권장)
 
-# 개발 서버 실행
+```bash
+# 전체 스택 실행 (frontend + backend + postgres + redis + celery)
+docker compose up -d
+
+# 로그 확인
+docker compose logs -f
+
+# 종료
+docker compose down
+```
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API 문서: http://localhost:8000/api/docs
+
+### 로컬 개발
+
+```bash
+# Frontend
+cd frontend
+npm install
 npm run dev
 
-# 프로덕션 빌드
-npm run build
-
-# 빌드 미리보기
-npm run preview
+# Backend
+cd backend
+pip install -e ".[dev]"
+uvicorn app.main:app --reload --port 8000
 ```
 
 ## 프로젝트 구조
 
 ```
 web-app/
-├── public/              # 정적 파일
-├── src/
-│   ├── components/      # React 컴포넌트
-│   ├── hooks/           # 커스텀 훅
-│   ├── utils/           # 유틸리티 함수 (물리 계산 등)
-│   ├── styles/          # 글로벌 스타일
-│   ├── assets/          # 이미지, 아이콘 등
-│   ├── App.tsx          # 루트 컴포넌트
-│   └── main.tsx         # 엔트리 포인트
-├── index.html
-├── vite.config.ts       # Vite + PWA 설정
-├── tsconfig.json
-└── package.json
+├── frontend/               # Next.js 15 프론트엔드
+│   ├── src/
+│   │   ├── app/            # App Router (페이지, 레이아웃)
+│   │   ├── components/     # React 컴포넌트
+│   │   ├── stores/         # Zustand 상태 관리
+│   │   └── lib/            # 유틸리티 (Socket.IO, 물리 계산)
+│   └── vitest.config.ts
+│
+├── backend/                # FastAPI 백엔드
+│   ├── app/
+│   │   ├── api/            # API 라우터
+│   │   ├── models/         # SQLAlchemy 모델
+│   │   ├── services/       # 비즈니스 로직
+│   │   ├── core/           # 설정, 보안
+│   │   └── db/             # DB 세션, Alembic 마이그레이션
+│   └── tests/
+│
+├── docker-compose.yml      # 프로덕션 Docker 구성
+├── docker-compose.dev.yml  # Codespace/개발 Docker 구성
+├── .devcontainer/          # GitHub Codespaces 설정
+└── .github/workflows/      # CI/CD
 ```
 
-## PWA (Progressive Web App)
+## Codespace
 
-이 앱은 PWA로 구성되어 있어 안드로이드 기기에서 홈 화면에 추가하여 네이티브 앱처럼 사용할 수 있습니다.
-
-- Chrome에서 "홈 화면에 추가" 선택
-- 오프라인 캐싱 지원
-- 전체 화면(standalone) 모드 지원
+GitHub Codespaces에서 즉시 개발을 시작할 수 있습니다.
+"Code" 버튼 → "Codespaces" 탭 → "Create codespace on main"을 클릭하세요.

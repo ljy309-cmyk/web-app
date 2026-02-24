@@ -1,23 +1,26 @@
 {
-  "name": "Web App Dev Container",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "name": "Web App Full Stack Dev Container",
+  "dockerComposeFile": "../docker-compose.dev.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
 
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  "forwardPorts": [5173, 4173, 6080, 5900],
+  "forwardPorts": [3000, 8000, 5432, 6379],
   "portsAttributes": {
-    "5173": { "label": "Vite Dev Server", "onAutoForward": "notify" },
-    "4173": { "label": "Vite Preview", "onAutoForward": "notify" },
-    "6080": { "label": "noVNC (브라우저 GUI)", "onAutoForward": "openBrowser" },
-    "5900": { "label": "VNC Direct", "onAutoForward": "ignore" }
+    "3000": { "label": "Next.js Frontend", "onAutoForward": "notify" },
+    "8000": { "label": "FastAPI Backend", "onAutoForward": "notify" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "ignore" },
+    "6379": { "label": "Redis", "onAutoForward": "ignore" }
   },
 
   "postCreateCommand": "bash .devcontainer/post-create.sh",
@@ -25,21 +28,14 @@
 
   "hostRequirements": {
     "cpus": 2,
-    "memory": "4gb"
-  },
-
-  "containerEnv": {
-    "DISPLAY": ":99",
-    "VNC_PORT": "5900",
-    "NOVNC_PORT": "6080",
-    "SCREEN_WIDTH": "1280",
-    "SCREEN_HEIGHT": "720",
-    "SCREEN_DEPTH": "24"
+    "memory": "8gb"
   },
 
   "remoteEnv": {
     "TZ": "Asia/Seoul",
-    "PATH": "${containerEnv:PATH}:/usr/local/share/nvm/current/bin",
+    "DATABASE_URL": "postgresql+asyncpg://postgres:postgres@postgres:5432/webapp",
+    "REDIS_URL": "redis://redis:6379/0",
+    "NEXT_PUBLIC_API_URL": "http://localhost:8000",
     "GIT_CONFIG_COUNT": "2",
     "GIT_CONFIG_KEY_0": "pull.rebase",
     "GIT_CONFIG_VALUE_0": "true",
@@ -47,18 +43,19 @@
     "GIT_CONFIG_VALUE_1": "main"
   },
 
-  "remoteUser": "vscode",
-
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
         "vitest.explorer",
         "streetsidesoftware.code-spell-checker",
         "DavidAnson.vscode-markdownlint",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "bradlc.vscode-tailwindcss"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -66,8 +63,11 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit"
         },
-        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.tsdk": "frontend/node_modules/typescript/lib",
         "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
         "git.rebaseWhenSync": true,
         "git.autofetch": true,
         "git.autofetchPeriod": 120

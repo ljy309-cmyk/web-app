@@ -1,27 +1,84 @@
 services:
-  app:
+  frontend:
     build:
-      context: .
-      dockerfile: .devcontainer/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "5173:5173" # Vite dev server
-      - "4173:4173" # Vite preview
-      - "6080:6080" # noVNC
-      - "5900:5900" # VNC direct
+      - "3000:3000"
     volumes:
-      - .:/workspace:cached
-      - node_modules:/workspace/node_modules
-    working_dir: /workspace
+      - ./frontend:/app:cached
+      - frontend_node_modules:/app/node_modules
     environment:
-      - DISPLAY=:99
-      - CHOKIDAR_USEPOLLING=true # 파일 변경 감지 (Docker 볼륨)
-    command: >
-      bash -c "
-        /usr/local/bin/start-vnc.sh &
-        npm install &&
-        npm run dev -- --host 0.0.0.0
-      "
-    user: vscode
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - WATCHPACK_POLLING=true
+    command: npm run dev
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app:cached
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/webapp
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ORIGINS=["http://localhost:3000"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app:cached
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/webapp
+      - REDIS_URL=redis://redis:6379/0
+    command: celery -A app.core.celery_app worker --loglevel=info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: webapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  node_modules:
+  frontend_node_modules:
+  postgres_data:
+  redis_data:

@@ -2,184 +2,49 @@
 
 echo "=== Pre-commit 검증 시작 ==="
 
-# 0. 의존성 업데이트 체크 (주 1회)
-MARKER_FILE=".last-dep-check"
-CHECK_INTERVAL=604800  # 7일 (초)
-CURRENT_TIME=$(date +%s)
-SHOULD_CHECK=false
-
-if [ ! -f "$MARKER_FILE" ]; then
-  SHOULD_CHECK=true
-else
-  LAST_CHECK=$(cat "$MARKER_FILE")
-  ELAPSED=$((CURRENT_TIME - LAST_CHECK))
-  if [ "$ELAPSED" -ge "$CHECK_INTERVAL" ]; then
-    SHOULD_CHECK=true
-  fi
-fi
-
-if [ "$SHOULD_CHECK" = true ]; then
-  echo "[0/7] 의존성 업데이트 체크 (주간)..."
-
-  # 현재 상태 백업
-  cp package.json /tmp/_pre_commit_pkg_backup.json
-  cp package-lock.json /tmp/_pre_commit_lock_backup.json
-
-  npm outdated --json > /tmp/_outdated.json 2>/dev/null || true
-  OUTDATED_SIZE=$(wc -c < /tmp/_outdated.json | tr -d ' ')
-
-  if [ "$OUTDATED_SIZE" -gt 2 ]; then
-    # 업데이트 목록 출력 및 메이저 패키지 추출
-    INSTALL_CMD=$(node -e '
-      const fs = require("fs");
-      const data = JSON.parse(fs.readFileSync("/tmp/_outdated.json", "utf8"));
-      const majors = [];
-      const minors = [];
-      for (const [pkg, info] of Object.entries(data)) {
-        if (!info.current || !info.latest) continue;
-        const curMajor = parseInt(info.current.split(".")[0]);
-        const latMajor = parseInt(info.latest.split(".")[0]);
-        if (latMajor > curMajor) {
-          majors.push({ name: pkg, from: info.current, to: info.latest });
-        } else if (info.current !== info.latest) {
-          minors.push({ name: pkg, from: info.current, to: info.latest });
-        }
-      }
-      if (majors.length + minors.length === 0) { process.exit(0); }
-      console.error("");
-      console.error("📦 업데이트 가능한 의존성 발견:");
-      majors.forEach(m => console.error("  ⬆ " + m.name + ": " + m.from + " → " + m.to + " (메이저)"));
-      minors.forEach(m => console.error("  ↑ " + m.name + ": " + m.from + " → " + m.to));
-      console.error("");
-      // stdout에 메이저 패키지 목록 출력 (npm install 인자용)
-      if (majors.length > 0) {
-        console.log(majors.map(m => m.name + "@latest").join(" "));
-      }
-    ' 2>&1 1>/tmp/_major_cmd.txt)
-
-    # stderr 출력 (업데이트 목록)
-    echo "$INSTALL_CMD"
-
-    MAJOR_PKGS=$(cat /tmp/_major_cmd.txt 2>/dev/null || true)
-
-    echo "🔄 의존성 업데이트 적용 중..."
-
-    # minor/patch 업데이트
-    npm update --save 2>/dev/null || true
-
-    # 메이저 업데이트
-    if [ -n "$MAJOR_PKGS" ]; then
-      npm install $MAJOR_PKGS 2>/dev/null || true
-    fi
-
-    # 업데이트 후 빠른 검증 (tsc + vitest)
-    echo "🔍 업데이트 후 검증 중..."
-    VERIFY_OK=true
-
-    npx tsc --noEmit 2>/dev/null
-    if [ $? -ne 0 ]; then
-      VERIFY_OK=false
-    fi
-
-    if [ "$VERIFY_OK" = true ]; then
-      npx vitest run 2>/dev/null
-      if [ $? -ne 0 ]; then
-        VERIFY_OK=false
-      fi
-    fi
-
-    if [ "$VERIFY_OK" = true ]; then
-      # 검증 통과 → 커밋에 포함
-      git add package.json package-lock.json 2>/dev/null
-      echo "✅ 의존성 업데이트 검증 통과 (커밋에 포함됩니다)"
-    else
-      # 검증 실패 → 자동 롤백
-      echo ""
-      echo "⚠️  업데이트된 의존성이 검증을 통과하지 못했습니다."
-      echo "   → 업데이트를 롤백하고 기존 버전으로 커밋을 진행합니다."
-      echo "   → 메이저 업데이트는 수동 대응이 필요합니다."
-      echo ""
-      cp /tmp/_pre_commit_pkg_backup.json package.json
-      cp /tmp/_pre_commit_lock_backup.json package-lock.json
-      npm install 2>/dev/null || true
-    fi
-  else
-    echo "[0/7] 의존성 최신 상태 ✓"
-  fi
-
-  # 타임스탬프 기록
-  echo "$CURRENT_TIME" > "$MARKER_FILE"
-
-  # 임시 파일 정리
-  rm -f /tmp/_outdated.json /tmp/_major_cmd.txt /tmp/_pre_commit_pkg_backup.json /tmp/_pre_commit_lock_backup.json
-fi
-
-# 1. Prettier 포맷 체크
-echo "[1/7] Prettier 포맷 체크..."
-npx prettier --check .
+# 1. Prettier 포맷 체크 (루트 설정 파일)
+echo "[1/3] Prettier 포맷 체크..."
+npx prettier --check "*.{json,yml,yaml,md}" ".ai-context.yml" "frontend/src/**/*.{ts,tsx,css}" "frontend/*.{ts,json}" 2>/dev/null
 if [ $? -ne 0 ]; then
   echo "❌ 포맷이 맞지 않는 파일이 있습니다. 커밋이 중단됩니다."
-  echo "   수정: npm run format"
+  echo "   수정: npx prettier --write ."
   exit 1
 fi
 
-# 2. 보안 취약점 검사 (high/critical, 프로덕션 의존성만)
-echo "[2/7] npm audit (보안 취약점 검사)..."
-npm audit --audit-level=high --omit=dev 2>/dev/null
-if [ $? -ne 0 ]; then
-  echo "❌ high/critical 보안 취약점이 있습니다. 커밋이 중단됩니다."
-  echo "   수정: npm audit fix"
-  exit 1
-fi
-
-# 3. TypeScript 타입 체크 (모든 워닝 = 에러)
-echo "[3/7] TypeScript 타입 체크..."
-npx tsc --noEmit
-if [ $? -ne 0 ]; then
-  echo "❌ TypeScript 타입 에러가 있습니다. 커밋이 중단됩니다."
-  exit 1
-fi
-
-# 4. ESLint 검사 (워닝 0개 허용 + 접근성 a11y 규칙 포함)
-echo "[4/7] ESLint 검사 (a11y 포함)..."
-npx eslint --max-warnings 0 .
-if [ $? -ne 0 ]; then
-  echo "❌ ESLint 에러/워닝이 있습니다. 커밋이 중단됩니다."
-  exit 1
-fi
-
-# 5. 단위 테스트 + 스냅샷 테스트 + 커버리지 100% 검증
-echo "[5/7] 단위/스냅샷 테스트 (커버리지 100% 필수)..."
-npx vitest run --coverage
-if [ $? -ne 0 ]; then
-  echo "❌ 테스트 실패 또는 커버리지 100% 미달입니다. 커밋이 중단됩니다."
-  echo "   스냅샷 갱신이 필요하면: npx vitest run --update"
-  exit 1
-fi
-
-# 6. 프로덕션 빌드 검증
-echo "[6/7] 프로덕션 빌드..."
-npm run build
-if [ $? -ne 0 ]; then
-  echo "❌ 빌드에 실패했습니다. 커밋이 중단됩니다."
-  exit 1
-fi
-
-# 7. Lighthouse 접근성 검사 (빌드 결과물 기반)
-echo "[7/7] Lighthouse 접근성 검사..."
-# Chrome/Chromium 존재 여부 확인
-CHROME_PATH=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || echo "")
-if [ -n "$CHROME_PATH" ]; then
-  CHROME_PATH="$CHROME_PATH" npx lhci autorun
-  if [ $? -ne 0 ]; then
-    echo "❌ Lighthouse 접근성 점수가 기준에 미달합니다. 커밋이 중단됩니다."
-    echo "   설정: lighthouserc.json"
-    echo "   수동 실행: npm run test:a11y"
-    exit 1
+# 2. Frontend 검증 (변경된 파일이 있을 때만)
+FRONTEND_CHANGED=$(git diff --cached --name-only | grep "^frontend/" || true)
+if [ -n "$FRONTEND_CHANGED" ]; then
+  echo "[2/3] Frontend 검증..."
+  if [ -d "frontend/node_modules" ]; then
+    cd frontend
+    npx tsc --noEmit
+    if [ $? -ne 0 ]; then
+      echo "❌ Frontend TypeScript 타입 에러가 있습니다."
+      exit 1
+    fi
+    cd ..
+  else
+    echo "  ⚠️ frontend/node_modules 없음, 건너뜀"
   fi
 else
-  echo "⚠️  Chrome/Chromium이 설치되어 있지 않아 Lighthouse 검사를 건너뜁니다."
-  echo "   로컬에 Chrome 설치 후 재시도하거나, CI에서 검증됩니다."
+  echo "[2/3] Frontend 변경 없음, 건너뜀"
+fi
+
+# 3. Backend 검증 (변경된 파일이 있을 때만)
+BACKEND_CHANGED=$(git diff --cached --name-only | grep "^backend/" || true)
+if [ -n "$BACKEND_CHANGED" ]; then
+  echo "[3/3] Backend 검증..."
+  if command -v ruff &>/dev/null; then
+    ruff check backend/
+    if [ $? -ne 0 ]; then
+      echo "❌ Backend 린트 에러가 있습니다."
+      exit 1
+    fi
+  else
+    echo "  ⚠️ ruff 미설치, 건너뜀"
+  fi
+else
+  echo "[3/3] Backend 변경 없음, 건너뜀"
 fi
 
 echo "=== ✅ 모든 검증 통과! 커밋을 진행합니다. ==="

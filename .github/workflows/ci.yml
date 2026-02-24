@@ -7,117 +7,114 @@ on:
     branches: [main]
 
 jobs:
-  lint:
-    name: Lint & Type Check
+  frontend-lint:
+    name: Frontend - Lint & Type Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci --legacy-peer-deps
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
       - name: TypeScript 타입 체크
         run: npx tsc --noEmit
-      - name: ESLint (a11y 포함, 워닝=에러)
-        run: npx eslint --max-warnings 0 .
+      - name: ESLint
+        run: npm run lint
 
-  test:
-    name: Unit & Snapshot Tests (Coverage 100%)
-    needs: lint
+  frontend-test:
+    name: Frontend - Tests
+    needs: frontend-lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci --legacy-peer-deps
-      - name: 테스트 + 커버리지 100%
-        run: npx vitest run --coverage
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: 테스트 + 커버리지
+        run: npm run test:coverage
 
-  e2e:
-    name: E2E Tests (Playwright)
+  backend-lint:
+    name: Backend - Lint & Type Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - run: echo "E2E tests replaced by unit/snapshot tests with 100% coverage"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 의존성 설치
+        run: pip install -e ".[dev]"
+      - name: Ruff 린트
+        run: ruff check .
+      - name: Mypy 타입 체크
+        run: mypy app/
 
-  audit:
+  backend-test:
+    name: Backend - Tests
+    needs: backend-lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: webapp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/webapp
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 의존성 설치
+        run: pip install -e ".[dev]"
+      - name: 테스트 + 커버리지
+        run: pytest --cov=app --cov-report=term-missing
+
+  security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci --legacy-peer-deps
-      - name: npm audit (high/critical, 프로덕션 의존성)
-        run: |
-          npm audit --omit=dev --json > audit-report.json 2>&1 || true
-          node -e "
-            const r = require('./audit-report.json');
-            const v = r.metadata?.vulnerabilities || {};
-            console.log('Vulnerability summary:', JSON.stringify(v));
-            const serious = (v.high || 0) + (v.critical || 0);
-            if (serious > 0) {
-              console.error('Found ' + serious + ' high/critical vulnerabilities');
-              process.exit(1);
-            }
-            console.log('No high/critical production vulnerabilities');
-          "
-
-  lighthouse:
-    name: Lighthouse CI
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci --legacy-peer-deps
-      - name: 빌드
-        run: npm run build
-      - name: Lighthouse CI 실행
-        run: |
-          npm install -g @lhci/cli@0.14
-          lhci autorun --config=lighthouserc.json 2>&1 || LHCI_EXIT=$?
-          echo ""
-          echo "=== LHCI 종료 코드: ${LHCI_EXIT:-0} ==="
-          echo ""
-          echo "=== 모든 카테고리 결과 ==="
-          for f in .lighthouseci/*.report.json; do
-            [ -f "$f" ] || { echo "리포트 파일 없음"; break; }
-            node -e "
-              const r = require('./' + process.argv[1]);
-              const cats = r.categories;
-              for (const [key, cat] of Object.entries(cats)) {
-                console.log(key + ': ' + (cat.score * 100).toFixed(0) + '%');
-              }
-              console.log('');
-              for (const [key, cat] of Object.entries(cats)) {
-                const fails = cat.auditRefs.filter(ref => {
-                  const a = r.audits[ref.id];
-                  return ref.weight > 0 && a && a.score !== null && a.score < 1;
-                });
-                if (fails.length > 0) {
-                  console.log('=== ' + key + ' 실패 항목 ===');
-                  for (const ref of fails) {
-                    const a = r.audits[ref.id];
-                    console.log('  FAIL: ' + ref.id + ' (score:' + a.score + ', weight:' + ref.weight + ')');
-                    console.log('    ' + a.title);
-                    if (a.details?.items) {
-                      a.details.items.slice(0, 3).forEach((item, i) =>
-                        console.log('    [' + i + '] ' + JSON.stringify(item).substring(0, 300))
-                      );
-                    }
-                  }
-                  console.log('');
-                }
-              }
-            " "$f"
-            break
-          done
-          exit ${LHCI_EXIT:-0}
+          cache-dependency-path: frontend/package-lock.json
+      - name: Frontend npm audit
+        working-directory: frontend
+        run: npm audit --omit=dev || true

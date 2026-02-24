@@ -1,9 +1,14 @@
 # Dependencies
 node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
 
 # Build output
 dist/
-dist-ssr/
+.next/
+.vercel/
 *.tsbuildinfo
 
 # Environment
@@ -31,16 +36,27 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# PWA dev
-dev-dist/
-
 # Coverage
 coverage/
+htmlcov/
+.coverage
 
-# Dependency check timestamp
-.last-dep-check
-
-# Playwright artifacts
+# Testing artifacts
 playwright-report/
 test-results/
 .lighthouseci/
+
+# Python
+*.egg-info/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Misc
+.last-dep-check
+dev-dist/
