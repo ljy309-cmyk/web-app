@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Multi AI Dev Platform - UI 설계 스크린샷</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi AI Dev Platform — UI Screenshots</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#0C0E18;color:#F3F4F6;padding:40px 20px}
-h1{text-align:center;font-size:24px;margin-bottom:8px}
-.sub{text-align:center;color:#6B7280;font-size:14px;margin-bottom:40px}
-.grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.card{background:#161930;border:1px solid #1E2235;border-radius:12px;overflow:hidden;transition:transform 0.2s}
-.card:hover{transform:translateY(-4px);border-color:#3B82F6}
-.card img{width:100%;display:block}
-.card-info{padding:12px 16px}
-.card-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
-.card-desc{font-size:12px;color:#9CA3AF}
+body{background:#0C0E18;color:#E5E7EB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;padding:40px 20px}
+.container{max-width:1200px;margin:0 auto}
+h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:8px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#6B7280;font-size:14px;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+.card{background:#12141F;border:1px solid #252A3A;border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.card img{width:100%;display:block;border-bottom:1px solid #1E2235}
+.card-body{padding:14px 16px}
+.card-title{font-size:13px;font-weight:700;color:#F3F4F6;margin-bottom:4px}
+.card-desc{font-size:11px;color:#6B7280;line-height:1.5}
+footer{text-align:center;margin-top:40px;font-size:11px;color:#374151}
 </style>
 </head>
 <body>
-<h1>🚀 Multi AI Dev Platform</h1>
-<p class="sub">UI 설계 스크린샷 — GPT-5.2 · Claude Opus 4.6 · Gemini 3.1 Pro</p>
+<div class="container">
+<h1>Multi AI Dev Platform</h1>
+<p class="subtitle">3개 AI 모델 (Claude Opus 4.6 · GPT-5.2 · Gemini 3.1 Pro) 코딩 플랫폼 UI</p>
 <div class="grid">
-  <div class="card"><img src="screenshots/01-login.png" alt="Login"><div class="card-info"><div class="card-title">1. 로그인 페이지</div><div class="card-desc">GitHub OAuth 전용 로그인</div></div></div>
-  <div class="card"><img src="screenshots/02-main-chat.png" alt="Main Chat"><div class="card-info"><div class="card-title">2. 메인 채팅 (빈 상태)</div><div class="card-desc">Sidebar + Header + 입력 영역</div></div></div>
-  <div class="card"><img src="screenshots/03-chat-messages.png" alt="Chat Messages"><div class="card-info"><div class="card-title">3. 채팅 메시지 (배치 모드)</div><div class="card-desc">3개 모델 순차 응답</div></div></div>
-  <div class="card"><img src="screenshots/04-discussion-mode.png" alt="Discussion"><div class="card-info"><div class="card-title">4. 토론 모드</div><div class="card-desc">라운드별 의견 + 합의 결과</div></div></div>
-  <div class="card"><img src="screenshots/05-dev-mode.png" alt="Dev Mode"><div class="card-info"><div class="card-title">5. 개발 모드</div><div class="card-desc">PR 카드 그리드 + 파이프라인 진행</div></div></div>
-  <div class="card"><img src="screenshots/06-schedule.png" alt="Schedule"><div class="card-info"><div class="card-title">6. 예약 관리</div><div class="card-desc">실행중/대기/완료 예약 관리</div></div></div>
-  <div class="card"><img src="screenshots/07-search.png" alt="Search"><div class="card-info"><div class="card-title">7. 검색 모달 (Ctrl+K)</div><div class="card-desc">대화/코드/PR 통합 검색</div></div></div>
-  <div class="card"><img src="screenshots/08-diff-compare.png" alt="Diff"><div class="card-info"><div class="card-title">8. 모델 Diff 비교</div><div class="card-desc">GPT vs Opus 코드 비교</div></div></div>
-  <div class="card"><img src="screenshots/09-notifications.png" alt="Notifications"><div class="card-info"><div class="card-title">9. 알림 센터</div><div class="card-desc">예약완료/파이프라인/PR 알림</div></div></div>
-  <div class="card"><img src="screenshots/10-shortcuts.png" alt="Shortcuts"><div class="card-info"><div class="card-title">10. 키보드 단축키</div><div class="card-desc">일반/채팅/모드 전환 단축키</div></div></div>
+<div class="card"><a href="screenshots/01-login.png" target="_blank"><img src="screenshots/01-login.png" alt="Login"></a><div class="card-body"><div class="card-title">01. 로그인 페이지</div><div class="card-desc">GitHub OAuth 로그인</div></div></div>
+<div class="card"><a href="screenshots/02-chat-batch.png" target="_blank"><img src="screenshots/02-chat-batch.png" alt="Chat"></a><div class="card-body"><div class="card-title">02. 메인 채팅 — 배치 모드</div><div class="card-desc">순차 모델 응답 + 3단 입력 영역</div></div></div>
+<div class="card"><a href="screenshots/03-chat-concurrent.png" target="_blank"><img src="screenshots/03-chat-concurrent.png" alt="Concurrent"></a><div class="card-body"><div class="card-title">03. 동시 모드</div><div class="card-desc">3개 모델 병렬 응답 패널 분할</div></div></div>
+<div class="card"><a href="screenshots/04-chat-discussion.png" target="_blank"><img src="screenshots/04-chat-discussion.png" alt="Discussion"></a><div class="card-body"><div class="card-title">04. 토론 모드</div><div class="card-desc">Opus 진행자 + 라운드별 의견/합의</div></div></div>
+<div class="card"><a href="screenshots/05-chat-devmode.png" target="_blank"><img src="screenshots/05-chat-devmode.png" alt="Dev"></a><div class="card-body"><div class="card-title">05. 개발 모드</div><div class="card-desc">Opus 테크리드 + PR 카드 그리드</div></div></div>
+<div class="card"><a href="screenshots/06-chat-automode.png" target="_blank"><img src="screenshots/06-chat-automode.png" alt="Auto"></a><div class="card-body"><div class="card-title">06. 자동 모드</div><div class="card-desc">5단계 Phase 진행바 + 실시간 로그</div></div></div>
+<div class="card"><a href="screenshots/07-pipeline.png" target="_blank"><img src="screenshots/07-pipeline.png" alt="Pipeline"></a><div class="card-body"><div class="card-title">07. 커밋 파이프라인</div><div class="card-desc">9단계 자동 검증 + AI 오류 분석</div></div></div>
+<div class="card"><a href="screenshots/08-dashboard.png" target="_blank"><img src="screenshots/08-dashboard.png" alt="Dashboard"></a><div class="card-body"><div class="card-title">08. 대시보드</div><div class="card-desc">비용/토큰/PR 통계 + 모델별 사용량</div></div></div>
+<div class="card"><a href="screenshots/09-settings.png" target="_blank"><img src="screenshots/09-settings.png" alt="Settings"></a><div class="card-body"><div class="card-title">09. 설정</div><div class="card-desc">프로필/연결/모델/프리셋 4탭</div></div></div>
+<div class="card"><a href="screenshots/10-schedule.png" target="_blank"><img src="screenshots/10-schedule.png" alt="Schedule"></a><div class="card-body"><div class="card-title">10. 예약 관리</div><div class="card-desc">대기/실행중/완료 + Phase 진행률</div></div></div>
+<div class="card"><a href="screenshots/11-search.png" target="_blank"><img src="screenshots/11-search.png" alt="Search"></a><div class="card-body"><div class="card-title">11. 검색 모달 (Ctrl+K)</div><div class="card-desc">대화/코드/PR 통합 검색</div></div></div>
+<div class="card"><a href="screenshots/12-shortcuts.png" target="_blank"><img src="screenshots/12-shortcuts.png" alt="Shortcuts"></a><div class="card-body"><div class="card-title">12. 키보드 단축키 (Ctrl+/)</div><div class="card-desc">일반/채팅/모드전환 3그룹</div></div></div>
+<div class="card"><a href="screenshots/13-repo-manage.png" target="_blank"><img src="screenshots/13-repo-manage.png" alt="Repo"></a><div class="card-body"><div class="card-title">13. 레포 관리</div><div class="card-desc">GitHub 레포 목록/동기화/상세</div></div></div>
+</div>
+<footer>Multi AI Dev Platform v0.1.0 — UI Screenshots</footer>
 </div>
 </body>
 </html>
