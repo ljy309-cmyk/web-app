@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi AI Dev Platform - UI 설계 스크린샷</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0C0E18;color:#F3F4F6;padding:40px 20px}
+h1{text-align:center;font-size:24px;margin-bottom:8px}
+.sub{text-align:center;color:#6B7280;font-size:14px;margin-bottom:40px}
+.grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:#161930;border:1px solid #1E2235;border-radius:12px;overflow:hidden;transition:transform 0.2s}
+.card:hover{transform:translateY(-4px);border-color:#3B82F6}
+.card img{width:100%;display:block}
+.card-info{padding:12px 16px}
+.card-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.card-desc{font-size:12px;color:#9CA3AF}
+</style>
+</head>
+<body>
+<h1>🚀 Multi AI Dev Platform</h1>
+<p class="sub">UI 설계 스크린샷 — GPT-5.2 · Claude Opus 4.6 · Gemini 3.1 Pro</p>
+<div class="grid">
+  <div class="card"><img src="screenshots/01-login.png" alt="Login"><div class="card-info"><div class="card-title">1. 로그인 페이지</div><div class="card-desc">GitHub OAuth 전용 로그인</div></div></div>
+  <div class="card"><img src="screenshots/02-main-chat.png" alt="Main Chat"><div class="card-info"><div class="card-title">2. 메인 채팅 (빈 상태)</div><div class="card-desc">Sidebar + Header + 입력 영역</div></div></div>
+  <div class="card"><img src="screenshots/03-chat-messages.png" alt="Chat Messages"><div class="card-info"><div class="card-title">3. 채팅 메시지 (배치 모드)</div><div class="card-desc">3개 모델 순차 응답</div></div></div>
+  <div class="card"><img src="screenshots/04-discussion-mode.png" alt="Discussion"><div class="card-info"><div class="card-title">4. 토론 모드</div><div class="card-desc">라운드별 의견 + 합의 결과</div></div></div>
+  <div class="card"><img src="screenshots/05-dev-mode.png" alt="Dev Mode"><div class="card-info"><div class="card-title">5. 개발 모드</div><div class="card-desc">PR 카드 그리드 + 파이프라인 진행</div></div></div>
+  <div class="card"><img src="screenshots/06-schedule.png" alt="Schedule"><div class="card-info"><div class="card-title">6. 예약 관리</div><div class="card-desc">실행중/대기/완료 예약 관리</div></div></div>
+  <div class="card"><img src="screenshots/07-search.png" alt="Search"><div class="card-info"><div class="card-title">7. 검색 모달 (Ctrl+K)</div><div class="card-desc">대화/코드/PR 통합 검색</div></div></div>
+  <div class="card"><img src="screenshots/08-diff-compare.png" alt="Diff"><div class="card-info"><div class="card-title">8. 모델 Diff 비교</div><div class="card-desc">GPT vs Opus 코드 비교</div></div></div>
+  <div class="card"><img src="screenshots/09-notifications.png" alt="Notifications"><div class="card-info"><div class="card-title">9. 알림 센터</div><div class="card-desc">예약완료/파이프라인/PR 알림</div></div></div>
+  <div class="card"><img src="screenshots/10-shortcuts.png" alt="Shortcuts"><div class="card-info"><div class="card-title">10. 키보드 단축키</div><div class="card-desc">일반/채팅/모드 전환 단축키</div></div></div>
+</div>
+</body>
+</html>
