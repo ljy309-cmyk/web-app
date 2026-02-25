@@ -893,7 +893,7 @@ function NotificationPanel({onClose,onShowAll}){
         ))}
       </div>
       <div style={{padding:"8px 16px",borderTop:`1px solid ${C.borderLight}`,textAlign:"center"}}>
-        <button onClick={()=>{onClose();}} style={{fontSize:11,color:"#60A5FA",border:"none",backgroundColor:"transparent",cursor:"pointer",fontWeight:600}} onClick={()=>{if(onShowAll)onShowAll();onClose();}}>전체 알림 보기</button>
+        <button onClick={()=>{if(onShowAll)onShowAll();onClose();}} style={{fontSize:11,color:"#60A5FA",border:"none",backgroundColor:"transparent",cursor:"pointer",fontWeight:600}}>전체 알림 보기</button>
       </div>
     </div>
   );
@@ -1132,8 +1132,9 @@ export default function App(){
   },[]);
   /* File attachment handler */
   const MAX_FILE_SIZE=10*1024*1024; /* 10MB */
+  const [fileError,setFileError]=useState(null);
   const handleFileSelect=e=>{
-    const files=Array.from(e.target.files||[]).filter(f=>{if(f.size>MAX_FILE_SIZE){alert(`파일 "${f.name}"이(가) 10MB를 초과합니다. (${(f.size/1024/1024).toFixed(1)}MB)`);return false;}return true;});
+    const files=Array.from(e.target.files||[]).filter(f=>{if(f.size>MAX_FILE_SIZE){setFileError(`파일 "${f.name}" — 10MB 초과 (${(f.size/1024/1024).toFixed(1)}MB)`);setTimeout(()=>setFileError(null),3000);return false;}return true;});
     const newAttachments=files.map(f=>({id:Date.now()+Math.random(),name:f.name,size:(f.size/1024).toFixed(1)+"KB",type:f.type.startsWith("image/")?"image":"text",preview:f.type.startsWith("image/")?URL.createObjectURL(f):null}));
     setAttachments(p=>[...p,...newAttachments]);
     e.target.value="";
@@ -1344,6 +1345,8 @@ export default function App(){
           )}
         </div>
 
+        {/* File size error toast */}
+        {fileError&&<div style={{position:"absolute",bottom:140,left:"50%",transform:"translateX(-50%)",padding:"8px 16px",borderRadius:10,backgroundColor:"rgba(239,68,68,0.15)",border:"1px solid rgba(248,113,113,0.3)",color:"#FCA5A5",fontSize:11,fontWeight:600,zIndex:30,whiteSpace:"nowrap"}}>{fileError}</div>}
         {/* Input Area */}
         <div style={{borderTop:`1px solid ${C.borderLight}`,backgroundColor:C.sidebarBg}}>
           <div style={{display:"flex",alignItems:"center",gap:6,padding:"12px 16px 4px"}}>
