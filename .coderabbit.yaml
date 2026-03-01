@@ -1,0 +1,9 @@
+# CodeRabbit 설정
+# 문서: https://docs.coderabbit.ai/guides/configure-coderabbit
+language: ko-KR
+reviews:
+  request_changes_workflow: true
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
