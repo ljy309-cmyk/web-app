@@ -1620,9 +1620,9 @@
             "</div></span>" +
             "</div>" +
             '<div class="그림버튼줄">' +
-            '<label class="그림선택버튼">📁 사진에서<input type="file" data-표정="' +
+            '<span class="그림선택버튼">📁 사진에서<input type="file" data-표정="' +
             키 +
-            '" class="숨김입력"></label>' +
+            '" class="숨김입력"></span>' +
             '<button class="그림선택버튼 그리기" data-그리기="' +
             키 +
             '">✏️ 직접 그리기</button>' +
@@ -1719,7 +1719,7 @@
       });
       위치적용();
       렌더();
-      $("버전").textContent = "버전 7 · 반토막은 호감도 " + CONFIG.반토막_임계 + "점부터";
+      $("버전").textContent = "버전 8 · 반토막은 호감도 " + CONFIG.반토막_임계 + "점부터";
       기록("👋 <b>" + CONFIG.이름 + "</b>이를 만났어요! 밥을 주거나 쓰다듬어 보세요.");
       requestAnimationFrame(한프레임);
 
