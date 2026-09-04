@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+    />
+    <title>유현이 키우기</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A3%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      /* ══════════════════════════════════════════
+   색깔이나 크기를 바꾸고 싶으면 이 :root 부분만 고치면 돼요
+   ══════════════════════════════════════════ */
+      :root {
+        --배경1: #ffe9f3;
+        --배경2: #e6f0ff;
+        --카드: #ffffff;
+        --글자: #4a3f55;
+        --흐린글자: #9b90a8;
+        --포인트: #ff7eb3;
+        --포인트2: #7ec8ff;
+        --테두리: #f0e4ef;
+        --호감도색: #ff7eb3;
+        --배부름색: #ffc06e;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+        color: var(--글자);
+        background: linear-gradient(160deg, var(--배경1), var(--배경2));
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        overscroll-behavior: none;
+      }
+
+      #앱 {
+        width: 100%;
+        max-width: 480px;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      /* ───── 상단 상태창 ───── */
+      #상태창 {
+        background: var(--카드);
+        border-radius: 18px;
+        padding: 14px 16px;
+        box-shadow: 0 4px 16px rgba(160, 120, 160, 0.12);
+      }
+      #이름줄 {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      #이름 {
+        font-size: 20px;
+        font-weight: 800;
+      }
+      #단계 {
+        font-size: 14px;
+        color: var(--포인트);
+        font-weight: 700;
+      }
+      #코인표시 {
+        margin-left: auto;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .게이지줄 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 7px;
+        font-size: 12px;
+      }
+      .게이지이름 {
+        width: 48px;
+        color: var(--흐린글자);
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .게이지통 {
+        flex: 1;
+        height: 12px;
+        background: #f2eef5;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .게이지바 {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: 99px;
+        transition: width 0.35s ease;
+      }
+      .게이지숫자 {
+        width: 62px;
+        text-align: right;
+        color: var(--흐린글자);
+        font-variant-numeric: tabular-nums;
+        flex-shrink: 0;
+      }
+
+      /* ───── 놀이터 (캐릭터가 돌아다니는 곳) ───── */
+      #놀이터 {
+        position: relative;
+        flex: 1;
+        min-height: 260px;
+        background: var(--카드);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(160, 120, 160, 0.12);
+        touch-action: none; /* 드래그할 때 화면이 같이 스크롤되는 것 방지 */
+      }
+      #바닥 {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 34%;
+        background: linear-gradient(180deg, #f6fff2, #e6f7dd);
+      }
+
+      #캐릭터 {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        cursor: grab;
+        user-select: none;
+        will-change: transform;
+      }
+      #캐릭터.잡는중 {
+        cursor: grabbing;
+      }
+      #캐릭터 svg,
+      #캐릭터 img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        pointer-events: none;
+      }
+      #그림자 {
+        position: absolute;
+        width: 70px;
+        height: 14px;
+        background: rgba(120, 90, 130, 0.16);
+        border-radius: 50%;
+        filter: blur(3px);
+        pointer-events: none;
+      }
+
+      #말풍선 {
+        position: absolute;
+        max-width: 200px;
+        background: #fff;
+        border: 2px solid var(--테두리);
+        border-radius: 14px;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+        text-align: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+        box-shadow: 0 3px 10px rgba(160, 120, 160, 0.15);
+      }
+      #말풍선.보임 {
+        opacity: 1;
+      }
+
+      .떠오르기 {
+        position: absolute;
+        font-size: 20px;
+        font-weight: 900;
+        pointer-events: none;
+        animation: 위로 1.1s ease-out forwards;
+      }
+      @keyframes 위로 {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(-52px);
+          opacity: 0;
+        }
+      }
+
+      /* ───── 음식 버튼 ───── */
+      #음식칸 {
+        background: var(--카드);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 4px 16px rgba(160, 120, 160, 0.12);
+      }
+      .칸제목 {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--흐린글자);
+        margin-bottom: 9px;
+      }
+      #음식목록 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+      }
+
+      .음식버튼 {
+        position: relative;
+        background: #fdf7fb;
+        border: 2px solid var(--테두리);
+        border-radius: 14px;
+        padding: 9px 2px 6px;
+        font-family: inherit;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        transition:
+          transform 0.1s,
+          border-color 0.15s;
+      }
+      .음식버튼:active {
+        transform: scale(0.93);
+      }
+      .음식버튼:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+      }
+      .음식버튼 .아이콘 {
+        font-size: 24px;
+        line-height: 1;
+      }
+      .음식버튼 .이름 {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--글자);
+      }
+      .음식버튼 .개수 {
+        position: absolute;
+        top: -6px;
+        right: -4px;
+        background: var(--포인트);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
+        min-width: 19px;
+        height: 19px;
+        line-height: 19px;
+        border-radius: 99px;
+        text-align: center;
+        padding: 0 4px;
+      }
+
+      /* ───── 아래 버튼들 ───── */
+      #버튼줄 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+      }
+      .큰버튼 {
+        background: var(--카드);
+        border: 2px solid var(--테두리);
+        border-radius: 14px;
+        padding: 11px 4px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--글자);
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      .큰버튼:active {
+        transform: scale(0.96);
+      }
+
+      /* ───── 계산 기록 ───── */
+      #기록칸 {
+        background: var(--카드);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 4px 16px rgba(160, 120, 160, 0.12);
+      }
+      #기록 {
+        max-height: 118px;
+        overflow-y: auto;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--흐린글자);
+        font-variant-numeric: tabular-nums;
+      }
+      #기록 div {
+        padding: 2px 0;
+        border-bottom: 1px dashed #f4eef4;
+      }
+      #기록 div:last-child {
+        border-bottom: 0;
+      }
+      #기록 b {
+        color: var(--글자);
+      }
+
+      /* ───── 팝업 ───── */
+      #덮개 {
+        position: fixed;
+        inset: 0;
+        background: rgba(60, 40, 70, 0.42);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 50;
+      }
+      #덮개.보임 {
+        display: flex;
+      }
+      #팝업 {
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        width: 100%;
+        max-width: 380px;
+        max-height: 78dvh;
+        overflow-y: auto;
+      }
+      #팝업제목 {
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0 0 14px;
+      }
+      .줄 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f4eef4;
+        font-size: 14px;
+      }
+      .줄:last-of-type {
+        border-bottom: 0;
+      }
+      .줄 .왼쪽 {
+        flex: 1;
+        font-weight: 700;
+      }
+      .줄 .설명 {
+        font-size: 11px;
+        color: var(--흐린글자);
+        font-weight: 500;
+      }
+      .사기버튼 {
+        background: var(--포인트);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 7px 13px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .사기버튼:disabled {
+        background: #ddd6de;
+        cursor: not-allowed;
+      }
+      #닫기 {
+        width: 100%;
+        margin-top: 16px;
+        padding: 12px;
+        background: #f4eef4;
+        border: 0;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--글자);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="앱">
+      <div id="상태창">
+        <div id="이름줄">
+          <span id="이름">유현</span>
+          <span id="단계">관심 있음</span>
+          <span id="코인표시">🪙 0</span>
+        </div>
+        <div class="게이지줄">
+          <span class="게이지이름">호감도</span>
+          <span class="게이지통"
+            ><span class="게이지바" id="호감도바" style="background: var(--호감도색)"></span
+          ></span>
+          <span class="게이지숫자" id="호감도숫자">50 / 300</span>
+        </div>
+        <div class="게이지줄">
+          <span class="게이지이름">배부름</span>
+          <span class="게이지통"
+            ><span class="게이지바" id="배부름바" style="background: var(--배부름색)"></span
+          ></span>
+          <span class="게이지숫자" id="배부름숫자">0 / 100</span>
+        </div>
+      </div>
+
+      <div id="놀이터">
+        <div id="바닥"></div>
+        <div id="그림자"></div>
+        <div id="캐릭터"></div>
+        <div id="말풍선"></div>
+      </div>
+
+      <div id="음식칸">
+        <div class="칸제목">🍽️ 밥 주기 &nbsp;·&nbsp; 캐릭터를 톡 누르면 쓰다듬기</div>
+        <div id="음식목록"></div>
+      </div>
+
+      <div id="버튼줄">
+        <button class="큰버튼" id="상점버튼">🛒 상점</button>
+        <button class="큰버튼" id="도감버튼">📖 도감</button>
+        <button class="큰버튼" id="초기화버튼">🔄 처음부터</button>
+      </div>
+
+      <div id="기록칸">
+        <div class="칸제목">🧮 계산 기록 (호감도가 어떻게 계산됐는지)</div>
+        <div id="기록"></div>
+      </div>
+    </div>
+
+    <div id="덮개">
+      <div id="팝업">
+        <h2 id="팝업제목"></h2>
+        <div id="팝업내용"></div>
+        <button id="닫기">닫기</button>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      /* ══════════════════════════════════════════════════════════════
+   ① 설정 — 게임 밸런스 숫자들.  여기 숫자만 바꾸면 게임이 달라져요!
+   ══════════════════════════════════════════════════════════════ */
+      const CONFIG = {
+        이름: "유현",
+
+        호감도_시작: 50,
+        호감도_최소: 0,
+        호감도_최대: 300,
+
+        // ⚠️ 호감도가 이 숫자 이상이면 상승치가 반으로 줄어요.
+        //    만점이 300이라 80은 좀 낮은 편! 느리면 240 정도로 올려보세요.
+        반토막_임계: 80,
+
+        방치_시간_분: 120, // 2시간
+        방치_감소: 4,
+
+        포만감_최대: 100,
+        포만감_반토막_임계: 70,
+        포만감_회복_분당: 5,
+
+        질림_연속횟수: 5, // 같은 음식 연속 5번째부터 질림
+
+        쓰다듬기_코인: 1,
+        쓰다듬기_쿨타임_초: 2, // 0 으로 하면 연타로 코인 무한 획득 가능
+
+        출석_스테이크: 1,
+        출석_코인: 20,
+
+        시작_코인: 10,
+        시작_가방: { steak: 1, macaron: 1, grape: 5, ice: 3 },
+      };
+
+      /* ② 음식 목록 */
+      const FOODS = {
+        steak: {
+          이름: "스테이크",
+          아이콘: "🥩",
+          호감도: 8,
+          포만감: 25,
+          가격: 12,
+          표정: "love",
+          대사: ["우와아앗! 이거 완전 좋아해!!", "최고야!! 또 줘!!"],
+        },
+        macaron: {
+          이름: "마카롱",
+          아이콘: "🍬",
+          호감도: 4,
+          포만감: 15,
+          가격: 5,
+          표정: "happy",
+          대사: ["달콤해! 좋아!", "이거 맛있다~"],
+        },
+        grape: {
+          이름: "포도",
+          아이콘: "🍇",
+          호감도: 2,
+          포만감: 10,
+          가격: 2,
+          표정: "happy",
+          대사: ["음, 괜찮네.", "새콤해."],
+        },
+        ice: {
+          이름: "얼음",
+          아이콘: "🧊",
+          호감도: 0,
+          포만감: 5,
+          가격: 1,
+          표정: "confused",
+          대사: ["…? 이걸 왜 줘?", "차갑기만 한데…"],
+        },
+        rock: {
+          이름: "돌맹이",
+          아이콘: "🪨",
+          호감도: -2,
+          포만감: 0,
+          가격: 0,
+          표정: "disgust",
+          대사: ["우웩! 이걸 먹으라고?!", "너 나 싫어해?!"],
+        },
+      };
+
+      /* ③ 호감도 단계 */
+      const 단계표 = [
+        { 최소: 240, 이름: "🥰 최애" },
+        { 최소: 170, 이름: "😍 좋아함" },
+        { 최소: 100, 이름: "😊 친해짐" },
+        { 최소: 50, 이름: "🙂 관심 있음" },
+        { 최소: 0, 이름: "😐 서먹서먹" },
+      ];
+
+      /* ④ 그림 교체하는 곳!
+   images/ 폴더에 투명배경 PNG 를 넣고, null 대신 파일 경로를 적으면 돼요.
+   예:  idle: "images/유현_기본.png",
+   안 채운 표정은 아래 임시 SVG 캐릭터가 대신 나와요. */
+      const 캐릭터_그림 = {
+        idle: null,
+        happy: null,
+        love: null,
+        confused: null,
+        disgust: null,
+        eating: null,
+        bored: null,
+        sad: null,
+      };
+
+      const 쓰다듬_대사 = ["헤헤…", "간지러워~", "좋아 좋아", "더 해줘!", "히히"];
+
+      /* ══════════════════════════════════════════════════════════════
+   저장 / 불러오기
+   ══════════════════════════════════════════════════════════════ */
+      const 저장키 = "yuhyeon-save-v1";
+
+      function 초기상태() {
+        return {
+          호감도: CONFIG.호감도_시작,
+          코인: CONFIG.시작_코인,
+          포만감: 0,
+          가방: Object.assign({}, CONFIG.시작_가방),
+          마지막음식: null,
+          연속횟수: 0,
+          발견: {}, // 먹여본 음식만 도감에 공개
+          마지막쓰다듬: Date.now(),
+          마지막포만감계산: Date.now(),
+          마지막출석: null,
+        };
+      }
+
+      function 불러오기() {
+        try {
+          const 원본 = localStorage.getItem(저장키);
+          if (!원본) return null;
+          const s = JSON.parse(원본);
+          if (typeof s.호감도 !== "number") return null; // 망가진 저장 무시
+          return Object.assign(초기상태(), s);
+        } catch (e) {
+          return null; // 저장 못 읽어도 게임은 돌아가게
+        }
+      }
+
+      function 저장() {
+        try {
+          localStorage.setItem(저장키, JSON.stringify(state));
+        } catch (e) {
+          /* 무시 */
+        }
+      }
+
+      let state = 불러오기() || 초기상태();
+
+      /* ══════════════════════════════════════════════════════════════
+   화면 요소 잡아두기
+   ══════════════════════════════════════════════════════════════ */
+      const $ = (id) => document.getElementById(id);
+      const 놀이터엘 = $("놀이터"),
+        캐릭터엘 = $("캐릭터"),
+        그림자엘 = $("그림자"),
+        말풍선엘 = $("말풍선");
+
+      /* ══════════════════════════════════════════════════════════════
+   임시 캐릭터 그리기 (SVG)
+   ══════════════════════════════════════════════════════════════ */
+      const 얼굴 = {
+        idle: '<circle cx="38" cy="46" r="4.5"/><circle cx="62" cy="46" r="4.5"/><path d="M42 60 Q50 66 58 60" stroke="#4a3f55" stroke-width="3" fill="none" stroke-linecap="round"/>',
+        happy:
+          '<path d="M33 47 Q38 41 43 47" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M57 47 Q62 41 67 47" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M40 59 Q50 69 60 59" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
+        love: '<path d="M38 43 a4 4 0 0 1 7 3 c0 3-4 6-7 8 c-3-2-7-5-7-8 a4 4 0 0 1 7-3z" fill="#ff5f8f"/><path d="M62 43 a4 4 0 0 1 7 3 c0 3-4 6-7 8 c-3-2-7-5-7-8 a4 4 0 0 1 7-3z" fill="#ff5f8f"/><path d="M39 60 Q50 73 61 60 Z" fill="#ff8fae"/>',
+        confused:
+          '<circle cx="38" cy="46" r="4.5"/><circle cx="62" cy="45" r="2.8"/><path d="M42 62 q4-4 8 0 t8 0" stroke="#4a3f55" stroke-width="3" fill="none" stroke-linecap="round"/>',
+        disgust:
+          '<path d="M34 42 L43 50 M43 42 L34 50" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><path d="M57 42 L66 50 M66 42 L57 50" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><path d="M40 64 q4 5 8 0 t8 0" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
+        eating:
+          '<path d="M33 46 L43 46" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><path d="M57 46 L67 46" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="50" cy="62" rx="8" ry="9" fill="#ff8fae"/>',
+        bored:
+          '<path d="M33 46 L43 46" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><path d="M57 46 L67 46" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/><path d="M41 62 L59 62" stroke="#4a3f55" stroke-width="3.5" stroke-linecap="round"/>',
+        sad: '<path d="M33 44 Q38 50 43 44" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M57 44 Q62 50 67 44" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M42 66 Q50 59 58 66" stroke="#4a3f55" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
+      };
+
+      function 캐릭터그리기(표정이름) {
+        const 표정 = 얼굴[표정이름] ? 표정이름 : "idle";
+
+        // 직접 그린 그림이 있으면 그걸 쓰고, 없으면 임시 SVG
+        if (캐릭터_그림[표정]) {
+          캐릭터엘.innerHTML = '<img src="' + 캐릭터_그림[표정] + '" alt="유현">';
+          return;
+        }
+        캐릭터엘.innerHTML =
+          '<svg viewBox="0 0 100 100">' +
+          '<ellipse cx="50" cy="88" rx="30" ry="8" fill="#ffd9e8" opacity=".5"/>' +
+          '<path d="M50 12 C74 12 86 32 86 54 C86 76 70 88 50 88 C30 88 14 76 14 54 C14 32 26 12 50 12z" fill="#ffe3ef" stroke="#ffc2da" stroke-width="3"/>' +
+          '<ellipse cx="27" cy="58" rx="6" ry="4.5" fill="#ffb5d0" opacity=".75"/>' +
+          '<ellipse cx="73" cy="58" rx="6" ry="4.5" fill="#ffb5d0" opacity=".75"/>' +
+          '<g fill="#4a3f55">' +
+          얼굴[표정] +
+          "</g>" +
+          "</svg>";
+      }
+
+      let 현재표정 = "idle";
+      let 표정타이머 = null;
+      function 표정(이름, 유지시간) {
+        현재표정 = 이름;
+        캐릭터그리기(이름);
+        clearTimeout(표정타이머);
+        if (유지시간)
+          표정타이머 = setTimeout(() => {
+            현재표정 = "idle";
+            캐릭터그리기("idle");
+          }, 유지시간);
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   말풍선 / 떠오르는 숫자
+   ══════════════════════════════════════════════════════════════ */
+      let 말풍선타이머 = null;
+      function 말풍선(글) {
+        말풍선엘.textContent = 글;
+        말풍선엘.classList.add("보임");
+        말풍선위치();
+        clearTimeout(말풍선타이머);
+        말풍선타이머 = setTimeout(() => 말풍선엘.classList.remove("보임"), 2200);
+      }
+
+      function 떠오르기(글, 색) {
+        const el = document.createElement("div");
+        el.className = "떠오르기";
+        el.textContent = 글;
+        el.style.color = 색;
+        el.style.left = 위치.x + 40 + "px";
+        el.style.top = 위치.y - 6 + "px";
+        놀이터엘.appendChild(el);
+        setTimeout(() => el.remove(), 1100);
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   시간 흐름 처리 (앱을 꺼놔도 시간은 흘러요)
+   ══════════════════════════════════════════════════════════════ */
+      function 시간경과처리() {
+        const 지금 = Date.now();
+
+        // 방치 페널티: 2시간마다 -4
+        const 간격 = CONFIG.방치_시간_분 * 60 * 1000;
+        const 횟수 = Math.floor((지금 - state.마지막쓰다듬) / 간격);
+        if (횟수 > 0) {
+          const 깎임 = 횟수 * CONFIG.방치_감소;
+          const 이전 = state.호감도;
+          state.호감도 = Math.max(CONFIG.호감도_최소, state.호감도 - 깎임);
+          state.마지막쓰다듬 += 횟수 * 간격;
+          if (이전 !== state.호감도) {
+            기록(
+              "🕒 <b>" +
+                횟수 * CONFIG.방치_시간_분 +
+                "분</b> 동안 안 놀아줌 → 호감도 <b>-" +
+                (이전 - state.호감도) +
+                "</b>"
+            );
+          }
+        }
+
+        // 배부름 회복: 1분에 5씩
+        const 분 = Math.floor((지금 - state.마지막포만감계산) / 60000);
+        if (분 > 0) {
+          state.포만감 = Math.max(0, state.포만감 - 분 * CONFIG.포만감_회복_분당);
+          state.마지막포만감계산 += 분 * 60000;
+        }
+      }
+
+      /* 출석체크 — 하루에 한 번 */
+      function 출석체크() {
+        const 오늘 = new Date().toLocaleDateString("sv-SE"); // "2026-09-04" 모양
+        if (state.마지막출석 === 오늘) return false;
+        state.마지막출석 = 오늘;
+        state.가방.steak = (state.가방.steak || 0) + CONFIG.출석_스테이크;
+        state.코인 += CONFIG.출석_코인;
+        기록(
+          "📅 <b>출석체크!</b> 🥩 스테이크 +" + CONFIG.출석_스테이크 + " · 🪙 +" + CONFIG.출석_코인
+        );
+        return true;
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   밥 주기  ← 게임의 핵심!
+   ══════════════════════════════════════════════════════════════ */
+      function 보유수량(id) {
+        if (id === "rock") return Infinity; // 돌맹이는 주우면 되니까 무한
+        return state.가방[id] || 0;
+      }
+
+      function 먹이기(id) {
+        const f = FOODS[id];
+        시간경과처리();
+
+        if (보유수량(id) <= 0) {
+          말풍선("그건 없는데…");
+          return;
+        }
+
+        if (state.포만감 >= CONFIG.포만감_최대) {
+          표정("bored", 1800);
+          말풍선("배불러… 좀 이따 줘");
+          return;
+        }
+
+        if (id !== "rock") state.가방[id]--;
+
+        // 같은 음식을 몇 번 연속으로 줬는지 세기
+        state.연속횟수 = state.마지막음식 === id ? state.연속횟수 + 1 : 1;
+        state.마지막음식 = id;
+
+        // ── 호감도 계산 (한 단계씩 기록해서 보여줘요) ──
+        const 기본 = f.호감도;
+        let 증가 = 기본;
+        const 단계들 = ["기본 " + (기본 >= 0 ? "+" : "") + 기본];
+        let 질렸나 = false;
+
+        if (state.연속횟수 >= CONFIG.질림_연속횟수) {
+          질렸나 = true;
+          증가 = 0;
+          단계들.push("연속 " + state.연속횟수 + "번째 → <b>질림 0</b>");
+        } else {
+          if (증가 > 0 && state.호감도 >= CONFIG.반토막_임계) {
+            증가 = 증가 / 2;
+            단계들.push("호감도 " + CONFIG.반토막_임계 + "↑ → 반 " + 증가);
+          }
+          if (증가 > 0 && state.포만감 >= CONFIG.포만감_반토막_임계) {
+            증가 = 증가 / 2;
+            단계들.push("배부름 " + CONFIG.포만감_반토막_임계 + "↑ → 반 " + 증가);
+          }
+          증가 = Math.round(증가);
+        }
+
+        const 이전호감도 = state.호감도;
+        state.호감도 = Math.min(
+          CONFIG.호감도_최대,
+          Math.max(CONFIG.호감도_최소, state.호감도 + 증가)
+        );
+        const 실제변화 = state.호감도 - 이전호감도;
+
+        state.포만감 = Math.min(CONFIG.포만감_최대, state.포만감 + f.포만감);
+        state.발견[id] = 기본; // 도감에 공개
+
+        기록(
+          f.아이콘 +
+            " <b>" +
+            f.이름 +
+            "</b> · " +
+            단계들.join(" → ") +
+            " · 호감도 " +
+            이전호감도 +
+            " → <b>" +
+            state.호감도 +
+            "</b>"
+        );
+
+        // ── 반응 ──
+        표정("eating", 700);
+        setTimeout(() => {
+          if (질렸나) {
+            표정("bored", 2000);
+            말풍선("또 " + f.이름 + "이야…? 질렸어");
+          } else {
+            표정(f.표정, 2000);
+            말풍선(f.대사[Math.floor(Math.random() * f.대사.length)]);
+          }
+        }, 700);
+
+        if (실제변화 > 0) 떠오르기("+" + 실제변화, "#ff5f8f");
+        else if (실제변화 < 0) 떠오르기(String(실제변화), "#7a8fb0");
+        else 떠오르기("+0", "#b0a8bb");
+
+        저장();
+        렌더();
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   쓰다듬기 — 호감도는 안 오르고 코인만!
+   ══════════════════════════════════════════════════════════════ */
+      let 마지막코인시각 = 0;
+      function 쓰다듬기() {
+        시간경과처리();
+        state.마지막쓰다듬 = Date.now(); // 방치 타이머 초기화
+
+        const 지금 = Date.now();
+        if (지금 - 마지막코인시각 >= CONFIG.쓰다듬기_쿨타임_초 * 1000) {
+          마지막코인시각 = 지금;
+          state.코인 += CONFIG.쓰다듬기_코인;
+          떠오르기("🪙+" + CONFIG.쓰다듬기_코인, "#e8a33d");
+        }
+
+        표정("happy", 1500);
+        말풍선(쓰다듬_대사[Math.floor(Math.random() * 쓰다듬_대사.length)]);
+        저장();
+        렌더();
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   화면 그리기
+   ══════════════════════════════════════════════════════════════ */
+      function 지금단계() {
+        for (const 단 of 단계표) if (state.호감도 >= 단.최소) return 단.이름;
+        return 단계표[단계표.length - 1].이름;
+      }
+
+      function 렌더() {
+        $("이름").textContent = CONFIG.이름;
+        $("단계").textContent = 지금단계();
+        $("코인표시").textContent = "🪙 " + state.코인;
+
+        $("호감도바").style.width = (state.호감도 / CONFIG.호감도_최대) * 100 + "%";
+        $("호감도숫자").textContent = state.호감도 + " / " + CONFIG.호감도_최대;
+        $("배부름바").style.width = (state.포만감 / CONFIG.포만감_최대) * 100 + "%";
+        $("배부름숫자").textContent = state.포만감 + " / " + CONFIG.포만감_최대;
+
+        const 목록 = $("음식목록");
+        목록.innerHTML = "";
+        for (const id in FOODS) {
+          const f = FOODS[id];
+          const 수 = 보유수량(id);
+          const b = document.createElement("button");
+          b.className = "음식버튼";
+          b.disabled = 수 <= 0;
+          b.innerHTML =
+            '<span class="아이콘">' +
+            f.아이콘 +
+            "</span>" +
+            '<span class="이름">' +
+            f.이름 +
+            "</span>" +
+            '<span class="개수">' +
+            (수 === Infinity ? "∞" : 수) +
+            "</span>";
+          b.addEventListener("click", () => 먹이기(id));
+          목록.appendChild(b);
+        }
+      }
+
+      const 기록목록 = [];
+      function 기록(글) {
+        기록목록.unshift(글);
+        if (기록목록.length > 40) 기록목록.pop();
+        $("기록").innerHTML = 기록목록.map((g) => "<div>" + g + "</div>").join("");
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   캐릭터 움직이기 (혼자 돌아다니기 + 손가락으로 끌기)
+   ══════════════════════════════════════════════════════════════ */
+      const 캐릭크기 = 110;
+      let 위치 = { x: 60, y: 90 };
+      let 목표 = null;
+      let 다음이동시각 = 0;
+      let 끄는중 = false;
+
+      function 놀이터크기() {
+        return { w: 놀이터엘.clientWidth, h: 놀이터엘.clientHeight };
+      }
+
+      function 범위안(p) {
+        const { w, h } = 놀이터크기();
+        return {
+          x: Math.max(6, Math.min(w - 캐릭크기 - 6, p.x)),
+          y: Math.max(6, Math.min(h - 캐릭크기 - 6, p.y)),
+        };
+      }
+
+      function 위치적용() {
+        캐릭터엘.style.transform = "translate(" + 위치.x + "px," + 위치.y + "px)";
+        그림자엘.style.transform =
+          "translate(" + (위치.x + 20) + "px," + (위치.y + 캐릭크기 - 12) + "px)";
+        말풍선위치();
+      }
+
+      function 말풍선위치() {
+        const 폭 = 말풍선엘.offsetWidth || 120;
+        const 놀이터폭 = 놀이터엘.clientWidth;
+        const 가운데 = 위치.x + 캐릭크기 / 2 - 폭 / 2;
+        말풍선엘.style.left = Math.max(4, Math.min(놀이터폭 - 폭 - 4, 가운데)) + "px";
+        말풍선엘.style.top = Math.max(4, 위치.y - 46) + "px";
+      }
+
+      function 새목표() {
+        const { w, h } = 놀이터크기();
+        목표 = {
+          x: Math.random() * Math.max(1, w - 캐릭크기 - 12) + 6,
+          y: Math.random() * Math.max(1, h - 캐릭크기 - 12) + 6,
+        };
+      }
+
+      function 한프레임(시각) {
+        if (!끄는중) {
+          if (!목표 && 시각 > 다음이동시각) 새목표();
+          if (목표) {
+            const dx = 목표.x - 위치.x,
+              dy = 목표.y - 위치.y;
+            const 거리 = Math.hypot(dx, dy);
+            if (거리 < 2) {
+              목표 = null;
+              다음이동시각 = 시각 + 900 + Math.random() * 2600; // 잠깐 쉬었다가 다시
+            } else {
+              const 속도 = 0.7;
+              위치.x += (dx / 거리) * 속도;
+              위치.y += (dy / 거리) * 속도;
+              // 걸을 때 살짝 통통 튀는 느낌
+              캐릭터엘.style.marginTop = Math.sin(시각 / 130) * 2.5 + "px";
+            }
+          }
+          위치 = 범위안(위치);
+          위치적용();
+        }
+        requestAnimationFrame(한프레임);
+      }
+
+      /* 손가락(또는 마우스)으로 끌기 — 살짝 톡 누르면 쓰다듬기 */
+      let 누른시각 = 0,
+        누른곳 = null,
+        움직인거리 = 0,
+        잡은오프셋 = null;
+
+      캐릭터엘.addEventListener("pointerdown", (e) => {
+        끄는중 = true;
+        목표 = null;
+        누른시각 = Date.now();
+        누른곳 = { x: e.clientX, y: e.clientY };
+        움직인거리 = 0;
+        const 박스 = 놀이터엘.getBoundingClientRect();
+        잡은오프셋 = { x: e.clientX - 박스.left - 위치.x, y: e.clientY - 박스.top - 위치.y };
+        캐릭터엘.classList.add("잡는중");
+        캐릭터엘.setPointerCapture(e.pointerId);
+      });
+
+      캐릭터엘.addEventListener("pointermove", (e) => {
+        if (!끄는중) return;
+        움직인거리 = Math.max(움직인거리, Math.hypot(e.clientX - 누른곳.x, e.clientY - 누른곳.y));
+        const 박스 = 놀이터엘.getBoundingClientRect();
+        위치 = 범위안({
+          x: e.clientX - 박스.left - 잡은오프셋.x,
+          y: e.clientY - 박스.top - 잡은오프셋.y,
+        });
+        위치적용();
+      });
+
+      function 끝내기(e) {
+        if (!끄는중) return;
+        끄는중 = false;
+        캐릭터엘.classList.remove("잡는중");
+        const 걸린시간 = Date.now() - 누른시각;
+        // 거의 안 움직였고 짧게 눌렀으면 → 쓰다듬기
+        if (움직인거리 < 10 && 걸린시간 < 400) 쓰다듬기();
+        다음이동시각 = performance.now() + 800;
+      }
+      캐릭터엘.addEventListener("pointerup", 끝내기);
+      캐릭터엘.addEventListener("pointercancel", 끝내기);
+
+      /* ══════════════════════════════════════════════════════════════
+   팝업 (상점 / 도감)
+   ══════════════════════════════════════════════════════════════ */
+      function 팝업열기(제목, 내용HTML) {
+        $("팝업제목").textContent = 제목;
+        $("팝업내용").innerHTML = 내용HTML;
+        $("덮개").classList.add("보임");
+      }
+      function 팝업닫기() {
+        $("덮개").classList.remove("보임");
+      }
+      $("닫기").addEventListener("click", 팝업닫기);
+      $("덮개").addEventListener("click", (e) => {
+        if (e.target === $("덮개")) 팝업닫기();
+      });
+
+      function 상점열기() {
+        let html =
+          '<div style="font-size:13px;color:var(--흐린글자);margin-bottom:10px">보유 코인: <b style="color:var(--글자)">🪙 ' +
+          state.코인 +
+          "</b><br>코인은 캐릭터를 쓰다듬으면 모을 수 있어요.</div>";
+        for (const id in FOODS) {
+          const f = FOODS[id];
+          if (id === "rock") continue; // 돌맹이는 공짜라 안 팜
+          const 살수있나 = state.코인 >= f.가격;
+          html +=
+            '<div class="줄">' +
+            '<span style="font-size:22px">' +
+            f.아이콘 +
+            "</span>" +
+            '<span class="왼쪽">' +
+            f.이름 +
+            '<div class="설명">배부름 +' +
+            f.포만감 +
+            (state.발견[id] !== undefined
+              ? " · 호감도 " + (f.호감도 >= 0 ? "+" : "") + f.호감도
+              : " · 호감도 ???") +
+            "</div>" +
+            "</span>" +
+            '<button class="사기버튼" data-사기="' +
+            id +
+            '"' +
+            (살수있나 ? "" : " disabled") +
+            ">🪙 " +
+            f.가격 +
+            "</button>" +
+            "</div>";
+        }
+        팝업열기("🛒 상점", html);
+        document.querySelectorAll("[data-사기]").forEach((b) => {
+          b.addEventListener("click", () => {
+            const id = b.getAttribute("data-사기");
+            const f = FOODS[id];
+            if (state.코인 < f.가격) return;
+            state.코인 -= f.가격;
+            state.가방[id] = (state.가방[id] || 0) + 1;
+            기록("🛒 <b>" + f.이름 + "</b> 구매 · 🪙 -" + f.가격);
+            저장();
+            렌더();
+            상점열기(); // 새로고침
+          });
+        });
+      }
+
+      function 도감열기() {
+        let html =
+          '<div style="font-size:13px;color:var(--흐린글자);margin-bottom:10px">한 번이라도 먹여본 음식만 공개돼요!</div>';
+        for (const id in FOODS) {
+          const f = FOODS[id];
+          const 알아냄 = state.발견[id] !== undefined;
+          html +=
+            '<div class="줄">' +
+            '<span style="font-size:22px;' +
+            (알아냄 ? "" : "filter:grayscale(1);opacity:.4") +
+            '">' +
+            f.아이콘 +
+            "</span>" +
+            '<span class="왼쪽">' +
+            (알아냄 ? f.이름 : "???") +
+            '<div class="설명">' +
+            (알아냄 ? "배부름 +" + f.포만감 : "아직 안 먹여봤어요") +
+            "</div>" +
+            "</span>" +
+            '<b style="color:' +
+            (알아냄
+              ? f.호감도 > 0
+                ? "var(--포인트)"
+                : f.호감도 < 0
+                  ? "#7a8fb0"
+                  : "var(--흐린글자)"
+              : "var(--흐린글자)") +
+            '">' +
+            (알아냄 ? (f.호감도 >= 0 ? "+" : "") + f.호감도 : "???") +
+            "</b>" +
+            "</div>";
+        }
+        팝업열기("📖 음식 도감", html);
+      }
+
+      $("상점버튼").addEventListener("click", 상점열기);
+      $("도감버튼").addEventListener("click", 도감열기);
+      $("초기화버튼").addEventListener("click", () => {
+        if (!confirm("정말 처음부터 다시 시작할까요?\n호감도랑 코인이 전부 사라져요!")) return;
+        state = 초기상태();
+        기록목록.length = 0;
+        저장();
+        렌더();
+        기록("🔄 처음부터 다시 시작!");
+      });
+
+      /* ══════════════════════════════════════════════════════════════
+   시작!
+   ══════════════════════════════════════════════════════════════ */
+      시간경과처리();
+      출석체크();
+      저장();
+      캐릭터그리기("idle");
+      위치 = 범위안({
+        x: 놀이터엘.clientWidth / 2 - 캐릭크기 / 2,
+        y: 놀이터엘.clientHeight / 2 - 20,
+      });
+      위치적용();
+      렌더();
+      기록("👋 <b>" + CONFIG.이름 + "</b>이를 만났어요! 밥을 주거나 쓰다듬어 보세요.");
+      requestAnimationFrame(한프레임);
+
+      // 1분마다 배부름 회복 등을 화면에 반영
+      setInterval(() => {
+        시간경과처리();
+        저장();
+        렌더();
+      }, 60000);
+
+      // 창 크기가 바뀌면 캐릭터가 밖으로 나가지 않게
+      window.addEventListener("resize", () => {
+        위치 = 범위안(위치);
+        위치적용();
+      });
+    </script>
+  </body>
+</html>
