@@ -439,30 +439,103 @@
         font-size: 0;
         cursor: pointer;
       }
-      .고르기 {
+      /* 표정 한 줄: 위에 미리보기+이름, 아래에 큼직한 버튼 3개 (폰에서 누르기 쉽게) */
+      .그림줄 {
+        padding: 12px 0;
+        border-bottom: 1px solid #f4eef4;
+      }
+      .그림줄:last-of-type {
+        border-bottom: 0;
+      }
+      .그림머리 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 9px;
+      }
+      .그림버튼줄 {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 7px;
+      }
+      .그림선택버튼 {
         position: relative;
         overflow: hidden;
-        display: inline-block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px; /* 손가락으로 누르기 편한 크기 */
+        border: 0;
+        border-radius: 12px;
         background: var(--포인트);
         color: #fff;
-        border-radius: 10px;
-        padding: 7px 11px;
-        font-size: 12px;
+        font-family: inherit;
+        font-size: 13px;
         font-weight: 800;
         cursor: pointer;
-        flex-shrink: 0;
+        text-align: center;
+        line-height: 1.2;
       }
-      .지우기 {
+      .그림선택버튼.그리기 {
+        background: var(--포인트2);
+        color: #2b4a63;
+      }
+      .그림선택버튼.지우기 {
         background: #f4eef4;
         color: var(--흐린글자);
-        border: 0;
+        padding: 0 14px;
+      }
+      .그림선택버튼:active {
+        transform: scale(0.96);
+      }
+
+      /* ───── 손가락으로 그리는 그림판 ───── */
+      #그림판 {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border: 2px dashed var(--테두리);
+        border-radius: 14px;
+        background: #fff;
+        touch-action: none; /* 그릴 때 화면이 스크롤되지 않게 */
+        display: block;
+      }
+      .붓줄 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .붓버튼 {
+        flex: 1;
+        min-width: 62px;
+        min-height: 42px;
+        border: 2px solid var(--테두리);
         border-radius: 10px;
-        padding: 7px 9px;
+        background: #fff;
         font-family: inherit;
         font-size: 12px;
         font-weight: 800;
+        color: var(--글자);
         cursor: pointer;
-        flex-shrink: 0;
+      }
+      .붓버튼.켜짐 {
+        background: var(--포인트);
+        color: #fff;
+        border-color: var(--포인트);
+      }
+      .색칩 {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px var(--테두리);
+        cursor: pointer;
+        padding: 0;
+        flex: 0 0 auto;
+      }
+      .색칩.켜짐 {
+        box-shadow: 0 0 0 3px var(--글자);
       }
       .안내상자 {
         background: #fdf3f8;
@@ -486,6 +559,14 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+      }
+      /* 그림판처럼 내용이 긴 창에서도 저장 버튼이 항상 보이게 */
+      .확인버튼줄.붙임 {
+        position: sticky;
+        bottom: -20px;
+        background: #fff;
+        padding: 12px 0 4px;
+        box-shadow: 0 -8px 12px #fff;
       }
       .확인버튼 {
         padding: 14px;
@@ -1347,10 +1428,179 @@
         리더.readAsDataURL(파일);
       }
 
+      /* ══════════════════════════════════════════════════════════════
+         손가락으로 직접 그리는 그림판
+         파일 선택창 없이도 폰에서 캐릭터를 만들 수 있어요.
+         ══════════════════════════════════════════════════════════════ */
+      const 색목록 = [
+        "#4a3f55",
+        "#ff7eb3",
+        "#f55575",
+        "#ffa63d",
+        "#ffd93d",
+        "#4ade80",
+        "#7ec8ff",
+        "#b78cff",
+        "#a97155",
+        "#ffffff",
+      ];
+
+      function 그리기창(표정키) {
+        const 표 = 표정목록.find((t) => t[0] === 표정키);
+        const 이름 = 표 ? 표[1] : "그림";
+
+        let 색칩html = "";
+        for (const c of 색목록)
+          색칩html +=
+            '<button class="색칩" data-색="' + c + '" style="background:' + c + '"></button>';
+
+        $("팝업제목").textContent = "✏️ " + 이름 + " 그리기";
+        $("팝업내용").innerHTML =
+          '<div class="안내상자">손가락으로 그려보세요. 배경은 <b>자동으로 투명</b>하게 저장돼요.</div>' +
+          '<canvas id="그림판" width="512" height="512"></canvas>' +
+          '<div class="붓줄">' +
+          색칩html +
+          "</div>" +
+          '<div class="붓줄">' +
+          '<button class="붓버튼" data-굵기="6">얇게</button>' +
+          '<button class="붓버튼 켜짐" data-굵기="16">보통</button>' +
+          '<button class="붓버튼" data-굵기="38">굵게</button>' +
+          '<button class="붓버튼" id="지우개">🧽 지우개</button>' +
+          "</div>" +
+          '<div class="붓줄">' +
+          '<button class="붓버튼" id="되돌리기">↩️ 되돌리기</button>' +
+          '<button class="붓버튼" id="전체지우기">🗑️ 전부 지우기</button>' +
+          "</div>" +
+          '<div class="확인버튼줄 붙임">' +
+          '<button class="확인버튼 아니오" id="그리기취소">취소</button>' +
+          '<button class="확인버튼 예" id="그리기저장">저장</button>' +
+          "</div>";
+        $("닫기").hidden = true;
+        $("덮개").classList.add("보임");
+
+        const 판 = $("그림판");
+        const g = 판.getContext("2d");
+        g.lineCap = "round";
+        g.lineJoin = "round";
+        let 색 = 색목록[0],
+          굵기 = 16,
+          지우개 = false,
+          그리는중 = false;
+        const 되돌리기목록 = [];
+
+        // 이미 넣어둔 그림이 있으면 불러와서 이어 그릴 수 있게
+        if (내그림[표정키]) {
+          const img = new Image();
+          img.onload = () => g.drawImage(img, 0, 0, 512, 512);
+          img.src = 내그림[표정키];
+        }
+
+        function 스냅샷() {
+          되돌리기목록.push(판.toDataURL("image/png"));
+          if (되돌리기목록.length > 10) 되돌리기목록.shift();
+        }
+
+        function 좌표(e) {
+          const r = 판.getBoundingClientRect();
+          return {
+            x: ((e.clientX - r.left) / r.width) * 판.width,
+            y: ((e.clientY - r.top) / r.height) * 판.height,
+          };
+        }
+
+        판.addEventListener("pointerdown", (e) => {
+          그리는중 = true;
+          판.setPointerCapture(e.pointerId);
+          스냅샷();
+          const p0 = 좌표(e);
+          g.globalCompositeOperation = 지우개 ? "destination-out" : "source-over";
+          g.strokeStyle = 색;
+          g.fillStyle = 색;
+          g.lineWidth = 굵기;
+          g.beginPath();
+          g.arc(p0.x, p0.y, 굵기 / 2, 0, Math.PI * 2);
+          g.fill();
+          g.beginPath();
+          g.moveTo(p0.x, p0.y);
+        });
+        판.addEventListener("pointermove", (e) => {
+          if (!그리는중) return;
+          const p1 = 좌표(e);
+          g.lineTo(p1.x, p1.y);
+          g.stroke();
+        });
+        function 그리기끝() {
+          그리는중 = false;
+        }
+        판.addEventListener("pointerup", 그리기끝);
+        판.addEventListener("pointercancel", 그리기끝);
+
+        document.querySelectorAll("[data-색]").forEach((b) => {
+          b.addEventListener("click", () => {
+            색 = b.getAttribute("data-색");
+            지우개 = false;
+            $("지우개").classList.remove("켜짐");
+            document.querySelectorAll("[data-색]").forEach((x) => x.classList.remove("켜짐"));
+            b.classList.add("켜짐");
+          });
+        });
+        document.querySelectorAll("[data-굵기]").forEach((b) => {
+          b.addEventListener("click", () => {
+            굵기 = Number(b.getAttribute("data-굵기"));
+            document.querySelectorAll("[data-굵기]").forEach((x) => x.classList.remove("켜짐"));
+            b.classList.add("켜짐");
+          });
+        });
+        $("지우개").addEventListener("click", () => {
+          지우개 = !지우개;
+          $("지우개").classList.toggle("켜짐", 지우개);
+        });
+        $("되돌리기").addEventListener("click", () => {
+          const 이전 = 되돌리기목록.pop();
+          if (!이전) return;
+          const img = new Image();
+          img.onload = () => {
+            g.globalCompositeOperation = "source-over";
+            g.clearRect(0, 0, 512, 512);
+            g.drawImage(img, 0, 0);
+          };
+          img.src = 이전;
+        });
+        $("전체지우기").addEventListener("click", () => {
+          스냅샷();
+          g.globalCompositeOperation = "source-over";
+          g.clearRect(0, 0, 512, 512);
+        });
+        $("그리기취소").addEventListener("click", () => 그림창());
+        $("그리기저장").addEventListener("click", () => {
+          const 작은판 = document.createElement("canvas");
+          작은판.width = 작은판.height = 256;
+          작은판.getContext("2d").drawImage(판, 0, 0, 256, 256);
+          let url = 작은판.toDataURL("image/webp", 0.92);
+          if (url.indexOf("data:image/webp") !== 0) url = 작은판.toDataURL("image/png");
+
+          내그림[표정키] = url;
+          // 저장에 실패해도 그림은 그대로 둬요. 지금 화면에서는 보이니까요.
+          if (그림저장()) {
+            기록("✏️ <b>" + 이름 + "</b> 그림을 직접 그려서 넣었어요!");
+          } else {
+            기록(
+              "⚠️ 그림은 넣었지만 <b>저장은 안 됐어요.</b> " +
+                "새로고침하면 사라져요. (저장 공간이 꽉 찼을 수 있어요)"
+            );
+          }
+          캐릭터그리기(현재표정);
+          그림창();
+        });
+
+        document.querySelector("[data-색]").classList.add("켜짐");
+      }
+
       function 그림창() {
         let html =
-          '<div class="안내상자">직접 그린 그림을 넣어보세요!<br>' +
-          "<b>투명 배경 PNG</b> 로 그리면 제일 예뻐요.<br>" +
+          '<div class="안내상자">캐릭터 그림을 바꿔보세요!<br>' +
+          "<b>📁 사진에서</b> — 갤러리에 있는 그림 넣기 (투명 배경 PNG 추천)<br>" +
+          "<b>✏️ 직접 그리기</b> — 손가락으로 지금 바로 그리기<br>" +
           "<b>기본</b> 하나만 넣어도 돼요. 안 넣은 표정은 <b>기본 그림</b>으로 대신 나와요.</div>";
         for (const 표 of 표정목록) {
           const 키 = 표[0],
@@ -1358,7 +1608,8 @@
             설명 = 표[2];
           const 있음 = !!내그림[키];
           html +=
-            '<div class="줄">' +
+            '<div class="그림줄">' +
+            '<div class="그림머리">' +
             '<span class="그림칸">' +
             (있음 ? '<img src="' + 내그림[키] + '" alt="">' : "🐣") +
             "</span>" +
@@ -1367,10 +1618,18 @@
             '<div class="설명">' +
             설명 +
             "</div></span>" +
-            '<label class="고르기">고르기<input type="file" accept="image/*" data-표정="' +
+            "</div>" +
+            '<div class="그림버튼줄">' +
+            '<label class="그림선택버튼">📁 사진에서<input type="file" accept="image/*" data-표정="' +
             키 +
             '" class="숨김입력"></label>' +
-            (있음 ? '<button class="지우기" data-지우기="' + 키 + '">지우기</button>' : "") +
+            '<button class="그림선택버튼 그리기" data-그리기="' +
+            키 +
+            '">✏️ 직접 그리기</button>' +
+            (있음
+              ? '<button class="그림선택버튼 지우기" data-지우기="' + 키 + '">🧽</button>'
+              : "") +
+            "</div>" +
             "</div>";
         }
         팝업열기("🎨 캐릭터 그림 바꾸기", html);
@@ -1385,20 +1644,24 @@
                 기록("⚠️ 그림을 읽지 못했어요. PNG 나 JPG 파일인지 확인해주세요.");
                 return;
               }
-              const 이전 = 내그림[키];
               내그림[키] = url;
-              if (!그림저장()) {
-                if (이전 === undefined) delete 내그림[키];
-                else 내그림[키] = 이전;
-                기록("⚠️ 저장 공간이 부족해요. 다른 표정 그림을 지우고 다시 해보세요.");
-                그림창();
-                return;
+              // 저장에 실패해도 그림은 그대로 둬요. 지금 화면에서는 보이니까요.
+              if (그림저장()) {
+                기록("🎨 <b>" + 키 + "</b> 그림을 넣었어요!");
+              } else {
+                기록(
+                  "⚠️ 그림은 넣었지만 <b>저장은 안 됐어요.</b> " +
+                    "새로고침하면 사라져요. (저장 공간이 꽉 찼을 수 있어요)"
+                );
               }
-              기록("🎨 <b>" + 키 + "</b> 그림을 넣었어요!");
               캐릭터그리기(현재표정);
               그림창();
             });
           });
+        });
+
+        document.querySelectorAll("[data-그리기]").forEach((b) => {
+          b.addEventListener("click", () => 그리기창(b.getAttribute("data-그리기")));
         });
 
         document.querySelectorAll("[data-지우기]").forEach((b) => {
@@ -1449,7 +1712,7 @@
       });
       위치적용();
       렌더();
-      $("버전").textContent = "버전 5 · 반토막은 호감도 " + CONFIG.반토막_임계 + "점부터";
+      $("버전").textContent = "버전 6 · 반토막은 호감도 " + CONFIG.반토막_임계 + "점부터";
       기록("👋 <b>" + CONFIG.이름 + "</b>이를 만났어요! 밥을 주거나 쓰다듬어 보세요.");
       requestAnimationFrame(한프레임);
 
