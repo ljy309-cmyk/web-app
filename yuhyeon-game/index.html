@@ -270,19 +270,45 @@
         padding: 0 4px;
       }
 
+      #효과안내 {
+        margin-top: 11px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #fdf3f8;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--흐린글자);
+        line-height: 1.5;
+      }
+      #효과안내 b {
+        color: var(--포인트);
+        font-size: 14px;
+      }
+      #효과안내 .반감 {
+        color: #d98a3a;
+      }
+
+      #버전 {
+        text-align: center;
+        font-size: 11px;
+        color: var(--흐린글자);
+        opacity: 0.7;
+        padding: 2px 0 6px;
+      }
+
       /* ───── 아래 버튼들 ───── */
       #버튼줄 {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
       }
       .큰버튼 {
         background: var(--카드);
         border: 2px solid var(--테두리);
         border-radius: 14px;
-        padding: 11px 4px;
+        padding: 11px 2px;
         font-family: inherit;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         color: var(--글자);
         cursor: pointer;
@@ -384,6 +410,68 @@
       #닫기[hidden] {
         display: none;
       }
+      .그림칸 {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #fdf3f8;
+        border: 2px solid var(--테두리);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        font-size: 18px;
+      }
+      .그림칸 img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      /* 파일 고르기 칸: 눈에는 안 보이지만 실제로는 살아있게 (hidden 은 일부 브라우저에서 막힘) */
+      .숨김입력 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .고르기 {
+        position: relative;
+        background: var(--포인트);
+        color: #fff;
+        border-radius: 10px;
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .지우기 {
+        background: #f4eef4;
+        color: var(--흐린글자);
+        border: 0;
+        border-radius: 10px;
+        padding: 7px 9px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .안내상자 {
+        background: #fdf3f8;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--흐린글자);
+        margin-bottom: 12px;
+      }
+      .안내상자 b {
+        color: var(--글자);
+      }
       .확인문구 {
         margin: 0 0 20px;
         font-size: 15px;
@@ -417,6 +505,8 @@
         color: #fff;
       }
       #닫기 {
+        position: sticky; /* 창이 길어도 닫기 버튼이 항상 보이게 */
+        bottom: -20px;
         width: 100%;
         margin-top: 16px;
         padding: 12px;
@@ -453,6 +543,7 @@
           ></span>
           <span class="게이지숫자" id="배부름숫자">0 / 100</span>
         </div>
+        <div id="효과안내"></div>
       </div>
 
       <div id="놀이터">
@@ -470,6 +561,7 @@
       <div id="버튼줄">
         <button class="큰버튼" id="상점버튼">🛒 상점</button>
         <button class="큰버튼" id="도감버튼">📖 도감</button>
+        <button class="큰버튼" id="그림버튼">🎨 그림</button>
         <button class="큰버튼" id="초기화버튼">🔄 처음부터</button>
       </div>
 
@@ -477,6 +569,8 @@
         <div class="칸제목">🧮 계산 기록 (호감도가 어떻게 계산됐는지)</div>
         <div id="기록"></div>
       </div>
+
+      <div id="버전"></div>
     </div>
 
     <div id="덮개">
@@ -642,6 +736,23 @@
 
       let state = 불러오기() || 초기상태();
 
+      /* 직접 넣은 캐릭터 그림 보관소 (게임 저장과 따로 보관해요) */
+      const 그림키 = "yuhyeon-images-v1";
+      let 내그림 = {};
+      try {
+        내그림 = JSON.parse(localStorage.getItem(그림키) || "{}") || {};
+      } catch (e) {
+        내그림 = {};
+      }
+      function 그림저장() {
+        try {
+          localStorage.setItem(그림키, JSON.stringify(내그림));
+          return true;
+        } catch (e) {
+          return false; // 저장 공간이 꽉 찬 경우
+        }
+      }
+
       /* ══════════════════════════════════════════════════════════════
    화면 요소 잡아두기
    ══════════════════════════════════════════════════════════════ */
@@ -673,9 +784,11 @@
       function 캐릭터그리기(표정이름) {
         const 표정 = 얼굴[표정이름] ? 표정이름 : "idle";
 
-        // 직접 그린 그림이 있으면 그걸 쓰고, 없으면 임시 SVG
-        if (캐릭터_그림[표정]) {
-          캐릭터엘.innerHTML = '<img src="' + 캐릭터_그림[표정] + '" alt="유현">';
+        // 이 표정 그림 → 없으면 "기본" 그림 → 그래도 없으면 임시 SVG
+        // (기본만 넣어도 항상 내 그림이 나오게. 안 그러면 내 그림과 분홍 캐릭터가 번갈아 나와요)
+        const 그림 = 내그림[표정] || 내그림.idle || 캐릭터_그림[표정] || 캐릭터_그림.idle;
+        if (그림) {
+          캐릭터엘.innerHTML = '<img src="' + 그림 + '" alt="유현">';
           return;
         }
         캐릭터엘.innerHTML =
@@ -786,6 +899,34 @@
         return "배부름 변화 없음";
       }
 
+      /* 이 음식을 지금 주면 호감도가 몇 오르는지 계산해요.
+         저장값을 바꾸지 않아서 "미리보기" 용으로도 쓸 수 있어요. */
+      function 호감도계산(id) {
+        const f = FOODS[id];
+        const 연속 = (state.마지막음식 === id ? state.연속횟수 : 0) + 1;
+        const 기본 = f.호감도;
+        let 증가 = 기본;
+        const 단계들 = ["기본 " + (기본 >= 0 ? "+" : "") + 기본];
+        let 질렸나 = false;
+
+        if (연속 >= CONFIG.질림_연속횟수) {
+          질렸나 = true;
+          증가 = 0;
+          단계들.push("연속 " + 연속 + "번째 → <b>질림 0</b>");
+        } else {
+          if (증가 > 0 && state.호감도 >= CONFIG.반토막_임계) {
+            증가 = 증가 / 2;
+            단계들.push("호감도 " + CONFIG.반토막_임계 + "↑ → 반 " + 증가);
+          }
+          if (증가 > 0 && state.포만감 >= CONFIG.포만감_반토막_임계) {
+            증가 = 증가 / 2;
+            단계들.push("배부름 " + CONFIG.포만감_반토막_임계 + "↑ → 반 " + 증가);
+          }
+          증가 = Math.round(증가);
+        }
+        return { 연속: 연속, 증가: 증가, 단계들: 단계들, 질렸나: 질렸나 };
+      }
+
       function 먹이기(id) {
         const f = FOODS[id];
         시간경과처리();
@@ -805,31 +946,13 @@
 
         state.가방[id]--;
 
-        // 같은 음식을 몇 번 연속으로 줬는지 세기
-        state.연속횟수 = state.마지막음식 === id ? state.연속횟수 + 1 : 1;
-        state.마지막음식 = id;
-
         // ── 호감도 계산 (한 단계씩 기록해서 보여줘요) ──
-        const 기본 = f.호감도;
-        let 증가 = 기본;
-        const 단계들 = ["기본 " + (기본 >= 0 ? "+" : "") + 기본];
-        let 질렸나 = false;
-
-        if (state.연속횟수 >= CONFIG.질림_연속횟수) {
-          질렸나 = true;
-          증가 = 0;
-          단계들.push("연속 " + state.연속횟수 + "번째 → <b>질림 0</b>");
-        } else {
-          if (증가 > 0 && state.호감도 >= CONFIG.반토막_임계) {
-            증가 = 증가 / 2;
-            단계들.push("호감도 " + CONFIG.반토막_임계 + "↑ → 반 " + 증가);
-          }
-          if (증가 > 0 && state.포만감 >= CONFIG.포만감_반토막_임계) {
-            증가 = 증가 / 2;
-            단계들.push("배부름 " + CONFIG.포만감_반토막_임계 + "↑ → 반 " + 증가);
-          }
-          증가 = Math.round(증가);
-        }
+        const 계산 = 호감도계산(id);
+        state.연속횟수 = 계산.연속;
+        state.마지막음식 = id;
+        const 증가 = 계산.증가;
+        const 단계들 = 계산.단계들;
+        const 질렸나 = 계산.질렸나;
 
         const 이전호감도 = state.호감도;
         state.호감도 = Math.min(
@@ -839,7 +962,7 @@
         const 실제변화 = state.호감도 - 이전호감도;
 
         state.포만감 = Math.max(0, Math.min(CONFIG.포만감_최대, state.포만감 + f.포만감));
-        state.발견[id] = 기본; // 도감에 공개
+        state.발견[id] = f.호감도; // 도감에 공개
 
         기록(
           f.아이콘 +
@@ -912,6 +1035,7 @@
         $("호감도숫자").textContent = state.호감도 + " / " + CONFIG.호감도_최대;
         $("배부름바").style.width = (state.포만감 / CONFIG.포만감_최대) * 100 + "%";
         $("배부름숫자").textContent = state.포만감 + " / " + CONFIG.포만감_최대;
+        효과안내갱신();
 
         const 목록 = $("음식목록");
         목록.innerHTML = "";
@@ -934,6 +1058,22 @@
           b.addEventListener("click", () => 먹이기(id));
           목록.appendChild(b);
         }
+      }
+
+      /* 지금 스테이크를 주면 몇 점 오르는지, 반토막이 걸렸는지 화면에 그대로 보여줘요 */
+      function 효과안내갱신() {
+        const r = 호감도계산("steak");
+        const 이유 = [];
+        if (state.호감도 >= CONFIG.반토막_임계) 이유.push("호감도 " + CONFIG.반토막_임계 + " 넘음");
+        if (state.포만감 >= CONFIG.포만감_반토막_임계)
+          이유.push("배부름 " + CONFIG.포만감_반토막_임계 + " 넘음");
+
+        let 글 = "🥩 스테이크를 지금 주면 <b>+" + r.증가 + "</b>";
+        if (r.질렸나) 글 += ' <span class="반감">· 스테이크에 질렸어요</span>';
+        else if (이유.length)
+          글 += ' <span class="반감">· 반토막 (' + 이유.join(" · ") + ")</span>";
+        else 글 += " · 반토막 없음";
+        $("효과안내").innerHTML = 글;
       }
 
       const 기록목록 = [];
@@ -1173,6 +1313,109 @@
         팝업열기("📖 음식 도감", html);
       }
 
+      const 표정목록 = [
+        ["idle", "기본", "평소 모습 (이거 하나만 넣어도 돼요!)"],
+        ["happy", "기분 좋음", "마카롱·포도 먹을 때, 쓰다듬을 때"],
+        ["love", "완전 행복", "스테이크 먹을 때"],
+        ["confused", "갸웃", "얼음 먹을 때"],
+        ["disgust", "시러", "돌맹이 먹을 때"],
+        ["eating", "먹는 중", "먹는 순간 잠깐"],
+        ["bored", "질림", "질렸을 때, 배부를 때"],
+        ["sad", "시무룩", "아직 안 쓰는 표정"],
+      ];
+
+      /* 고른 그림을 작게 줄여서 저장해요. 원본 그대로 넣으면 저장 공간이 모자라요. */
+      function 그림줄이기(파일, 완료) {
+        const 리더 = new FileReader();
+        리더.onerror = () => 완료(null);
+        리더.onload = () => {
+          const img = new Image();
+          img.onerror = () => 완료(null);
+          img.onload = () => {
+            const 최대 = 256;
+            const 비율 = Math.min(1, 최대 / Math.max(img.width, img.height));
+            const w = Math.max(1, Math.round(img.width * 비율));
+            const h = Math.max(1, Math.round(img.height * 비율));
+            const 캔버스 = document.createElement("canvas");
+            캔버스.width = w;
+            캔버스.height = h;
+            캔버스.getContext("2d").drawImage(img, 0, 0, w, h);
+            let url = 캔버스.toDataURL("image/webp", 0.92);
+            if (url.indexOf("data:image/webp") !== 0) url = 캔버스.toDataURL("image/png");
+            완료(url);
+          };
+          img.src = 리더.result;
+        };
+        리더.readAsDataURL(파일);
+      }
+
+      function 그림창() {
+        let html =
+          '<div class="안내상자">직접 그린 그림을 넣어보세요!<br>' +
+          "<b>투명 배경 PNG</b> 로 그리면 제일 예뻐요.<br>" +
+          "<b>기본</b> 하나만 넣어도 돼요. 안 넣은 표정은 <b>기본 그림</b>으로 대신 나와요.</div>";
+        for (const 표 of 표정목록) {
+          const 키 = 표[0],
+            이름 = 표[1],
+            설명 = 표[2];
+          const 있음 = !!내그림[키];
+          html +=
+            '<div class="줄">' +
+            '<span class="그림칸">' +
+            (있음 ? '<img src="' + 내그림[키] + '" alt="">' : "🐣") +
+            "</span>" +
+            '<span class="왼쪽">' +
+            이름 +
+            '<div class="설명">' +
+            설명 +
+            "</div></span>" +
+            '<label class="고르기">고르기<input type="file" accept="image/*" data-표정="' +
+            키 +
+            '" class="숨김입력"></label>' +
+            (있음 ? '<button class="지우기" data-지우기="' + 키 + '">지우기</button>' : "") +
+            "</div>";
+        }
+        팝업열기("🎨 캐릭터 그림 바꾸기", html);
+
+        document.querySelectorAll("[data-표정]").forEach((입력) => {
+          입력.addEventListener("change", () => {
+            const 파일 = 입력.files && 입력.files[0];
+            if (!파일) return;
+            const 키 = 입력.getAttribute("data-표정");
+            그림줄이기(파일, (url) => {
+              if (!url) {
+                기록("⚠️ 그림을 읽지 못했어요. PNG 나 JPG 파일인지 확인해주세요.");
+                return;
+              }
+              const 이전 = 내그림[키];
+              내그림[키] = url;
+              if (!그림저장()) {
+                if (이전 === undefined) delete 내그림[키];
+                else 내그림[키] = 이전;
+                기록("⚠️ 저장 공간이 부족해요. 다른 표정 그림을 지우고 다시 해보세요.");
+                그림창();
+                return;
+              }
+              기록("🎨 <b>" + 키 + "</b> 그림을 넣었어요!");
+              캐릭터그리기(현재표정);
+              그림창();
+            });
+          });
+        });
+
+        document.querySelectorAll("[data-지우기]").forEach((b) => {
+          b.addEventListener("click", () => {
+            const 키 = b.getAttribute("data-지우기");
+            delete 내그림[키];
+            그림저장();
+            기록("🧽 <b>" + 키 + "</b> 그림을 지웠어요.");
+            캐릭터그리기(현재표정);
+            그림창();
+          });
+        });
+      }
+
+      $("그림버튼").addEventListener("click", 그림창);
       $("상점버튼").addEventListener("click", 상점열기);
       $("도감버튼").addEventListener("click", 도감열기);
       $("초기화버튼").addEventListener("click", () => {
@@ -1208,6 +1451,7 @@
       });
       위치적용();
       렌더();
+      $("버전").textContent = "버전 3 · 반토막은 호감도 " + CONFIG.반토막_임계 + "점부터";
       기록("👋 <b>" + CONFIG.이름 + "</b>이를 만났어요! 밥을 주거나 쓰다듬어 보세요.");
       requestAnimationFrame(한프레임);
 
